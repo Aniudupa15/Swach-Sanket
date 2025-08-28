@@ -1,4 +1,4 @@
-# Swachh-Sanket
+# Swachh-Setu
 Smart Waste, Clean Traditions
 
 🚀 Tools Used
@@ -6,9 +6,6 @@ Smart Waste, Clean Traditions
 RFID Hardware
 -Durable, weatherproof passive UHF RFID tags for unique identification of each waste bin.
 -Handheld or vehicle-mounted RFID readers for automatic, drive-by bin detection and servicing.
-
-GPS Modules (Optional)
--Real-time vehicle and bin location tracking for route optimization and geofencing.
 
 IoT Connectivity
 -GPRS/4G/5G modules for wireless data transmission from readers/vehicles to the cloud.
@@ -19,7 +16,7 @@ Backend Software & Cloud Infrastructure
 -Scalable cloud server (AWS, Azure, Google Cloud) for secure storage and analytics.
 
 Web-Based Dashboard and Analytics
--Responsive web application for real-time monitoring, built with React/Angular/Vue.js frontend and Node.js/Django/.NET backend.
+-Responsive web application for real-time monitoring, built with React frontend and Node.js backend.
 -Data visualization tools for maps, charts, and collection reports.
 -Role-based user management for MCC staff and supervisors.
 
