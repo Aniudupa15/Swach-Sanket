@@ -62,7 +62,7 @@ export default function MRFDashboard() {
     }
   ]);
 
-  const [collections, setCollections] = useState([
+  const [collections] = useState([
     { id: 1, mrfName: 'Central MRF Station', type: 'Plastic', weight: 45, date: '2025-11-08', time: '09:30' },
     { id: 2, mrfName: 'East Side MRF', type: 'Paper', weight: 78, date: '2025-11-08', time: '10:15' },
     { id: 3, mrfName: 'Central MRF Station', type: 'Metal', weight: 32, date: '2025-11-08', time: '11:00' },

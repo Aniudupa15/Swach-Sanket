@@ -512,7 +512,7 @@ import {
 } from "recharts";
 import {
   Calendar, Search, X, Clock, Home, Plus,
-  LogOut, Trash2, CheckCircle, AlertCircle, Eye
+  LogOut, Trash2, CheckCircle, Eye
 } from "lucide-react";
 
 import {

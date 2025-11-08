@@ -111,7 +111,7 @@ export default function DriverDashboard() {
       );
       setDistanceToNext(dist);
     }
-  }, [userLocation, currentPanchayat?.lat, currentPanchayat?.lng]);
+  }, [userLocation, currentPanchayat]);
 
   /* Initialize map */
   useEffect(() => {
