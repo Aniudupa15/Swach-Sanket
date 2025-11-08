@@ -7,7 +7,8 @@ const entrySchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true, required: true },
     dateKey: { type: String, required: true, index: true }, // YYYY-MM-DD (IST)
-    data: { type: Map, of: Number, default: {} }
+    // data: { type: Map, of: Number, default: {} }
+    data: { type: Object, default: {} }
   },
   { timestamps: true }
 );

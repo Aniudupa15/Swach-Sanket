@@ -1,63 +1,49 @@
 import React, { useState } from 'react';
-// Make sure to install lucide-react: npm install lucide-react
 import { Lock, Mail, Eye, EyeOff, Leaf, AlertCircle } from 'lucide-react'; 
-// 🔥 IMPORTANT: Import the necessary hooks and service files
 import { useNavigate } from "react-router-dom";
 import api from "../services/api"; 
 
-
 export default function LoginPage() {
-  const [email, setEmail] = useState('admin@swachsanket.com'); // Pre-fill for demo UX
-  const [password, setPassword] = useState('admin123'); // Pre-fill for demo UX
+  const [email, setEmail] = useState('admin@swachsanket.com');
+  const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  // 🔥 New state for handling and displaying errors
-  const [error, setError] = useState(''); 
+  const [error, setError] = useState('');
 
-  // 🔥 Initialize the navigation hook
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError('');
     setIsLoading(true);
 
-    // This checks if you are in mock mode (like your old code)
     const MOCK_MODE = !process.env.REACT_APP_API_BASE;
 
     try {
       let token;
-      
+
       if (MOCK_MODE) {
-        // --- MOCK LOGIC ---
         if (email === "admin@swachsanket.com" && password === "admin123") {
           token = "fake-jwt-token";
         } else {
-          // Use the Error state to display the failure message
           throw new Error("Invalid mock credentials");
         }
       } else {
-        // --- REAL API LOGIC ---
         const resp = await api.post("/api/auth/login", { email, password });
         token = resp.data.token || resp.data.accessToken;
       }
 
-      // --- SUCCESS LOGIC ---
       localStorage.setItem("auth_token", token);
       localStorage.setItem("user_email", email);
-      // navigate("/dashboard");
-      navigate("/zilla-dashboard");
-      // navigate("/driver-dashboard"); // 🔥 REDIRECT TO DASHBOARD ON SUCCESS
-
+      navigate("/dashboard");
     } catch (err) {
-      // --- ERROR HANDLING ---
-      const errorMessage = err.response?.data?.message || err.message || "Login failed. Please try again.";
+      const errorMessage =
+        err.response?.data?.message || err.message || "Login failed. Please try again.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center p-4">
@@ -70,8 +56,7 @@ export default function LoginPage() {
       {/* Login Card */}
       <div className="relative w-full max-w-md">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-          
-          {/* Header Section (unchanged) */}
+          {/* Header Section */}
           <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-8 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-4">
               <Leaf className="w-8 h-8 text-emerald-600" />
@@ -79,25 +64,23 @@ export default function LoginPage() {
             <h1 className="text-2xl font-bold text-white mb-2">
               Zilla Panchayat MRF Portal
             </h1>
-            <p className="text-emerald-50 text-sm">
-              Smart Waste Management System
-            </p>
+            <p className="text-emerald-50 text-sm">Smart Waste Management System</p>
           </div>
 
           {/* Form Section */}
           <div className="p-8">
-            
-            {/* 🔥 NEW: Error Alert Box */}
             {error && (
-              <div role="alert" className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-start space-x-3">
+              <div
+                role="alert"
+                className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-start space-x-3"
+              >
                 <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
                 <span className="block sm:inline font-medium text-sm">{error}</span>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* Email Input (unchanged) */}
+              {/* Email Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
@@ -117,7 +100,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Password Input (unchanged) */}
+              {/* Password Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Password
@@ -148,7 +131,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Remember Me & Forgot Password (unchanged) */}
+              {/* Remember Me + Forgot Password */}
               <div className="flex items-center justify-between">
                 <label className="flex items-center">
                   <input
@@ -157,12 +140,18 @@ export default function LoginPage() {
                   />
                   <span className="ml-2 text-sm text-gray-600">Remember me</span>
                 </label>
-                <a href="#" className="text-sm font-medium text-emerald-600 hover:text-emerald-700">
+
+                {/* ✅ FIXED: Changed from <a href="#"> to a button */}
+                <button
+                  type="button"
+                  onClick={() => alert("Password recovery coming soon!")}
+                  className="text-sm font-medium text-emerald-600 hover:text-emerald-700 underline"
+                >
                   Forgot password?
-                </a>
+                </button>
               </div>
 
-              {/* Submit Button (unchanged) */}
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -170,9 +159,25 @@ export default function LoginPage() {
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Signing in...
                   </span>
@@ -182,7 +187,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Mock Credentials (unchanged) */}
+            {/* Demo Credentials */}
             <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
               <p className="text-xs text-gray-500 text-center mb-2 font-medium">
                 Demo Credentials
@@ -197,7 +202,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Footer (unchanged) */}
+        {/* Footer */}
         <p className="text-center text-white text-sm mt-6">
           © 2024 Zilla Panchayat. All rights reserved.
         </p>

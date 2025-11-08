@@ -1,15 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import {
-  MapPin,
-  Play,
-  Square,
-  Navigation,
-  Home,
-  Locate,
-  Compass,
-  Gauge,
-  ArrowRight,
-} from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Play, Square, Navigation, Home, Locate, Compass } from "lucide-react";
 
 /* ================= ROUTES ================= */
 const ROUTES = [
@@ -88,7 +78,7 @@ export default function DriverDashboard() {
       (pos) => {
         const { latitude, longitude, speed, heading } = pos.coords;
         setUserLocation({ lat: latitude, lng: longitude });
-        setSpeed(speed ? (speed * 3.6).toFixed(1) : 0); // m/s → km/h
+        setSpeed(speed ? (speed * 3.6).toFixed(1) : 0); // Convert m/s → km/h
         setHeading(heading ?? null);
       },
       (err) => console.error("Geo error:", err),
@@ -97,7 +87,7 @@ export default function DriverDashboard() {
     return () => navigator.geolocation.clearWatch(watchId);
   }, [status]);
 
-  /* Calculate distance */
+  /* Calculate distance between coordinates */
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -110,6 +100,7 @@ export default function DriverDashboard() {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   };
 
+  /* Compute distance to next panchayat */
   useEffect(() => {
     if (userLocation && currentPanchayat) {
       const dist = calculateDistance(
@@ -120,7 +111,7 @@ export default function DriverDashboard() {
       );
       setDistanceToNext(dist);
     }
-  }, [userLocation, currentPanchayat]);
+  }, [userLocation, currentPanchayat?.lat, currentPanchayat?.lng]);
 
   /* Initialize map */
   useEffect(() => {
@@ -140,7 +131,7 @@ export default function DriverDashboard() {
       mapInstanceRef.current = map;
       map.invalidateSize();
     }
-  }, [leafletLoaded, selectedRoute, status]);
+  }, [leafletLoaded, selectedRoute, status, currentPanchayat?.lat, currentPanchayat?.lng]);
 
   /* Routing and markers */
   useEffect(() => {
@@ -151,7 +142,9 @@ export default function DriverDashboard() {
     if (routingControlRef.current) {
       try {
         map.removeControl(routingControlRef.current);
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
 
     if (userLocation) {
@@ -170,8 +163,9 @@ export default function DriverDashboard() {
 
     L.marker([currentPanchayat.lat, currentPanchayat.lng]).addTo(map);
     map.setView([currentPanchayat.lat, currentPanchayat.lng], 13);
-  }, [userLocation, currentPanchayatIndex, leafletLoaded]);
+  }, [userLocation, currentPanchayatIndex, leafletLoaded, selectedRoute, currentPanchayat]);
 
+  /* Route controls */
   const startRoute = (route) => {
     setSelectedRoute(route);
     setStatus("active");
@@ -187,14 +181,14 @@ export default function DriverDashboard() {
     }
   };
 
-  /* Convert heading degrees to direction */
+  /* Convert heading degrees to direction text */
   const getDirection = (deg) => {
     if (deg == null) return "N/A";
     const dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
     return dirs[Math.round(deg / 45) % 8];
   };
 
-  /* ========== UI ========== */
+  /* ================= UI ================= */
   if (status === "idle") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
