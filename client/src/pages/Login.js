@@ -7,8 +7,8 @@ import api from "../services/api";
 
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('admin@example.com'); // Pre-fill for demo UX
-  const [password, setPassword] = useState('password123'); // Pre-fill for demo UX
+  const [email, setEmail] = useState('admin@swachsanket.com'); // Pre-fill for demo UX
+  const [password, setPassword] = useState('admin123'); // Pre-fill for demo UX
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   // 🔥 New state for handling and displaying errors
@@ -30,7 +30,7 @@ export default function LoginPage() {
       
       if (MOCK_MODE) {
         // --- MOCK LOGIC ---
-        if (email === "admin@example.com" && password === "password123") {
+        if (email === "admin@swachsanket.com" && password === "admin123") {
           token = "fake-jwt-token";
         } else {
           // Use the Error state to display the failure message
