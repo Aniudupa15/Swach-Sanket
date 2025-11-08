@@ -1,7 +1,4 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getEntry, upsertEntry, deleteEntry, getHistory } from "../services/mrf";
-
-import { useNavigate } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -13,11 +10,23 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
   LineChart,
   Line,
 } from "recharts";
-import { ChevronDown, ChevronUp, Calendar, TrendingUp, Save, Trash2, Search, X, LogOut } from "lucide-react";
+import { 
+  Calendar, 
+  TrendingUp, 
+  Save, 
+  Trash2, 
+  Search, 
+  X, 
+  LogOut, 
+  Plus,
+  Edit3,
+  Home,
+  BarChart3,
+  Clock
+} from "lucide-react";
 
 const materialList = [
   { category: "Paper", name: "News Paper", color: "#8b5cf6" },
@@ -53,10 +62,8 @@ const materialList = [
 ];
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [currentView, setCurrentView] = useState("dashboard"); // dashboard, entry, history
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [entries, setEntries] = useState({});
   const [data, setData] = useState(() =>
     materialList.reduce((acc, item) => {
@@ -64,11 +71,11 @@ export default function Dashboard() {
       return acc;
     }, {})
   );
-  const [expandedCategories, setExpandedCategories] = useState({});
-  const [activeTab, setActiveTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
+  const [quickAddMode, setQuickAddMode] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("mrf_data") || "{}");
@@ -93,9 +100,7 @@ export default function Dashboard() {
     const updated = { ...entries, [selectedDate]: data };
     localStorage.setItem("mrf_data", JSON.stringify(updated));
     setEntries(updated);
-    setNotificationMessage(`✅ Data saved successfully for ${selectedDate}`);
-    setShowNotification(true);
-    setTimeout(() => setShowNotification(false), 3000);
+    showNotif(`✅ Data saved successfully for ${selectedDate}`);
   };
 
   const handleDeleteEntry = (date) => {
@@ -103,7 +108,11 @@ export default function Dashboard() {
     delete updated[date];
     localStorage.setItem("mrf_data", JSON.stringify(updated));
     setEntries(updated);
-    setNotificationMessage(`🗑️ Deleted entry for ${date}`);
+    showNotif(`🗑️ Deleted entry for ${date}`);
+  };
+
+  const showNotif = (message) => {
+    setNotificationMessage(message);
     setShowNotification(true);
     setTimeout(() => setShowNotification(false), 3000);
   };
@@ -111,11 +120,7 @@ export default function Dashboard() {
   const handleLogout = () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user_email");
-    navigate("/login");
-  };
-
-  const toggleCategory = (category) => {
-    setExpandedCategories(prev => ({ ...prev, [category]: !prev[category] }));
+    window.location.href = "/login";
   };
 
   const chartData = useMemo(() => {
@@ -147,20 +152,13 @@ export default function Dashboard() {
     return grouped;
   }, []);
 
-  const filteredCategories = useMemo(() => {
-    if (!searchTerm) return Object.keys(materialsByCategory);
-    return Object.keys(materialsByCategory).filter(category =>
-      category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      materialsByCategory[category].some(m => 
-        m.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+  const filteredMaterials = useMemo(() => {
+    if (!searchTerm) return materialList;
+    return materialList.filter(m =>
+      m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm, materialsByCategory]);
-
-  const completionPercentage = useMemo(() => {
-    const filled = Object.values(data).filter(v => v && parseFloat(v) > 0).length;
-    return Math.round((filled / materialList.length) * 100);
-  }, [data]);
+  }, [searchTerm]);
 
   const historicalData = useMemo(() => {
     return Object.keys(entries)
@@ -172,18 +170,310 @@ export default function Dashboard() {
       }));
   }, [entries]);
 
+  // Dashboard View
+  const DashboardView = () => (
+    <div className="space-y-6">
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-2xl shadow-xl p-6">
+          <div className="text-sm opacity-90 mb-2">Total Weight Today</div>
+          <div className="text-5xl font-bold mb-1">{totalWeight.toFixed(2)}</div>
+          <div className="text-sm opacity-75">Kilograms</div>
+        </div>
+        <div className="bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-2xl shadow-xl p-6">
+          <div className="text-sm opacity-90 mb-2">Materials Recorded</div>
+          <div className="text-5xl font-bold mb-1">
+            {Object.values(data).filter(v => v && parseFloat(v) > 0).length}
+          </div>
+          <div className="text-sm opacity-75">of {materialList.length} items</div>
+        </div>
+        <div className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-2xl shadow-xl p-6">
+          <div className="text-sm opacity-90 mb-2">Total Entries</div>
+          <div className="text-5xl font-bold mb-1">{Object.keys(entries).length}</div>
+          <div className="text-sm opacity-75">Days recorded</div>
+        </div>
+      </div>
+
+      {/* Charts */}
+      <div className="bg-white rounded-2xl shadow-lg p-6">
+        <h3 className="text-2xl font-bold mb-6">Today's Category Distribution</h3>
+        <ResponsiveContainer width="100%" height={350}>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="category" angle={-45} textAnchor="end" height={100} />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="total" radius={[8, 8, 0, 0]}>
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {historicalData.length > 1 && (
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <h3 className="text-2xl font-bold mb-6">7-Day Trend</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={historicalData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="total" stroke="#8b5cf6" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </div>
+  );
+
+  // Quick Entry View
+  const EntryView = () => (
+    <div className="space-y-6">
+      {/* Date & Actions */}
+      <div className="bg-white rounded-2xl shadow-lg p-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <Calendar className="text-purple-600" size={28} />
+            <div>
+              <label className="text-sm text-gray-500 block mb-1">Select Date</label>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="text-xl font-semibold border-2 border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+          </div>
+          <button
+            onClick={handleSave}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-xl transition flex items-center gap-3"
+          >
+            <Save size={24} />
+            Save Entry
+          </button>
+        </div>
+      </div>
+
+      {/* Entry Mode Toggle */}
+      <div className="bg-white rounded-2xl shadow-lg p-4">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setQuickAddMode(false)}
+            className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${
+              !quickAddMode
+                ? 'bg-purple-600 text-white shadow-lg'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            📝 All Materials
+          </button>
+          <button
+            onClick={() => setQuickAddMode(true)}
+            className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${
+              quickAddMode
+                ? 'bg-purple-600 text-white shadow-lg'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            ⚡ Quick Add
+          </button>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={24} />
+        <input
+          type="text"
+          placeholder="Search materials..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-14 pr-12 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-purple-500 bg-white shadow-md"
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm("")}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <X size={24} />
+          </button>
+        )}
+      </div>
+
+      {/* Quick Add Mode */}
+      {quickAddMode ? (
+        <div className="space-y-4">
+          {/* Category Selector */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {Object.keys(materialsByCategory).map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`p-4 rounded-xl font-semibold transition ${
+                  selectedCategory === category
+                    ? 'bg-purple-600 text-white shadow-lg scale-105'
+                    : 'bg-white text-gray-700 shadow-md hover:shadow-lg'
+                }`}
+                style={{
+                  borderLeft: selectedCategory === category ? 'none' : `4px solid ${materialsByCategory[category][0].color}`
+                }}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {/* Materials in Selected Category */}
+          {selectedCategory && (
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <div 
+                  className="w-4 h-4 rounded-full" 
+                  style={{ backgroundColor: materialsByCategory[selectedCategory][0].color }}
+                />
+                {selectedCategory}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {materialsByCategory[selectedCategory].map((item) => (
+                  <div key={item.name} className="bg-gray-50 p-4 rounded-xl">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {item.name}
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={data[item.name]}
+                        onChange={(e) => handleChange(item.name, e.target.value)}
+                        placeholder="0.00"
+                        min="0"
+                        step="0.01"
+                        className="flex-1 text-xl font-semibold border-2 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500"
+                      />
+                      <span className="text-lg font-semibold text-gray-500">kg</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        // All Materials Mode
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredMaterials.map((item) => (
+            <div 
+              key={item.name} 
+              className="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition"
+              style={{ borderLeft: `4px solid ${item.color}` }}
+            >
+              <div className="text-xs text-gray-500 mb-1">{item.category}</div>
+              <label className="block text-sm font-semibold text-gray-800 mb-3">
+                {item.name}
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={data[item.name]}
+                  onChange={(e) => handleChange(item.name, e.target.value)}
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  className="flex-1 text-lg font-semibold border-2 border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-purple-500"
+                />
+                <span className="text-sm font-semibold text-gray-500">kg</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  // History View
+  const HistoryView = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-2xl shadow-lg p-6">
+        <h3 className="text-2xl font-bold mb-6">Saved Entries</h3>
+        {Object.keys(entries).length === 0 ? (
+          <div className="text-center py-16">
+            <div className="text-8xl mb-4">📊</div>
+            <p className="text-xl text-gray-500">No data saved yet</p>
+            <button
+              onClick={() => setCurrentView("entry")}
+              className="mt-4 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700"
+            >
+              Start Entering Data
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Object.keys(entries)
+              .sort((a, b) => b.localeCompare(a))
+              .map((date) => {
+                const dateTotal = Object.entries(entries[date])
+                  .reduce((sum, [, value]) => sum + (parseFloat(value) || 0), 0);
+                return (
+                  <div key={date} className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-100 rounded-2xl p-6 hover:shadow-xl transition">
+                    <div className="text-sm text-gray-500 mb-2">
+                      {new Date(date).toLocaleDateString('en-US', { 
+                        weekday: 'short', 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
+                    </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <TrendingUp className="text-green-500" size={24} />
+                      <span className="text-4xl font-bold">{dateTotal.toFixed(2)}</span>
+                      <span className="text-lg text-gray-500">kg</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">
+                      {Object.entries(entries[date]).filter(
+                        ([, value]) => value && parseFloat(value) > 0
+                      ).length} materials recorded
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedDate(date);
+                          setCurrentView("entry");
+                        }}
+                        className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-semibold hover:bg-purple-700 transition flex items-center justify-center gap-2"
+                      >
+                        <Edit3 size={18} />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEntry(date)}
+                        className="bg-red-50 text-red-600 px-4 py-3 rounded-xl hover:bg-red-100 transition"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg">
-        <div className="container mx-auto px-6 py-4">
+      <header className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-5">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold">MRF Dashboard</h1>
               <p className="text-purple-100 text-sm">Zilla Panchayat Material Recovery Facility</p>
             </div>
             <div className="flex items-center gap-4">
-              <span className="bg-white/20 px-4 py-2 rounded-lg text-sm">
+              <span className="bg-white/20 px-4 py-2 rounded-lg text-sm hidden md:block">
                 {localStorage.getItem("user_email") || "user@example.com"}
               </span>
               <button 
@@ -191,294 +481,65 @@ export default function Dashboard() {
                 className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition flex items-center gap-2"
               >
                 <LogOut size={18} />
-                Logout
+                <span className="hidden md:inline">Logout</span>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-xl shadow-lg p-6">
-            <div className="text-sm opacity-90 mb-2">Total Weight Today</div>
-            <div className="text-4xl font-bold mb-1">{totalWeight.toFixed(2)}</div>
-            <div className="text-sm opacity-75">Kilograms</div>
-          </div>
-          <div className="bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-xl shadow-lg p-6">
-            <div className="text-sm opacity-90 mb-2">Materials Recorded</div>
-            <div className="text-4xl font-bold mb-1">
-              {Object.values(data).filter(v => v && parseFloat(v) > 0).length}
-            </div>
-            <div className="text-sm opacity-75">of {materialList.length} items</div>
-          </div>
-          <div className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-xl shadow-lg p-6">
-            <div className="text-sm opacity-90 mb-2">Categories Active</div>
-            <div className="text-4xl font-bold mb-1">
-              {chartData.filter(c => c.total > 0).length}
-            </div>
-            <div className="text-sm opacity-75">of {Object.keys(materialsByCategory).length} categories</div>
-          </div>
-        </div>
-
-        {/* Date Picker & Save */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex items-center gap-3">
-              <Calendar className="text-purple-600" size={24} />
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="border-2 border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
-              />
-            </div>
+      {/* Navigation */}
+      <div className="bg-white shadow-md sticky top-[88px] z-40">
+        <div className="container mx-auto px-6">
+          <div className="flex gap-2">
             <button
-              onClick={handleSave}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
+              onClick={() => setCurrentView("dashboard")}
+              className={`flex-1 md:flex-none py-4 px-6 font-semibold transition flex items-center justify-center gap-2 ${
+                currentView === "dashboard"
+                  ? 'text-purple-600 border-b-4 border-purple-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
             >
-              <Save size={20} />
-              Save Data
+              <Home size={20} />
+              <span className="hidden md:inline">Dashboard</span>
             </button>
-          </div>
-          <div className="mt-4">
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>Data Entry Progress</span>
-              <span>{completionPercentage}% Complete</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${completionPercentage}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-          <div className="flex border-b">
-            {['Data Entry', 'Analytics', 'History'].map((tab, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveTab(idx)}
-                className={`flex-1 py-4 font-semibold transition ${
-                  activeTab === idx
-                    ? 'bg-purple-50 text-purple-600 border-b-2 border-purple-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab Content */}
-          <div className="p-6">
-            {/* Data Entry Tab */}
-            {activeTab === 0 && (
-              <div>
-                <div className="mb-6 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="text"
-                    placeholder="Search materials or categories..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-10 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500"
-                  />
-                  {searchTerm && (
-                    <button
-                      onClick={() => setSearchTerm("")}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      <X size={20} />
-                    </button>
-                  )}
-                </div>
-
-                {filteredCategories.map(category => {
-                  const categoryTotal = materialsByCategory[category].reduce((sum, item) => 
-                    sum + (parseFloat(data[item.name]) || 0), 0
-                  );
-                  const isExpanded = expandedCategories[category];
-                  
-                  return (
-                    <div key={category} className="mb-4 border-2 border-gray-100 rounded-xl overflow-hidden">
-                      <div
-                        onClick={() => toggleCategory(category)}
-                        className="p-4 cursor-pointer hover:bg-gray-50 transition flex justify-between items-center"
-                        style={{
-                          background: `linear-gradient(90deg, ${materialsByCategory[category][0].color}15 0%, transparent 100%)`
-                        }}
-                      >
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-800">{category}</h3>
-                          <p className="text-sm text-gray-600">
-                            {materialsByCategory[category].length} materials • {categoryTotal.toFixed(2)} kg
-                          </p>
-                        </div>
-                        {isExpanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
-                      </div>
-                      
-                      {isExpanded && (
-                        <div className="p-4 bg-gray-50 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {materialsByCategory[category].map(item => (
-                            <div key={item.name} className="bg-white p-3 rounded-lg border border-gray-200">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                {item.name}
-                              </label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="number"
-                                  value={data[item.name]}
-                                  onChange={(e) => handleChange(item.name, e.target.value)}
-                                  placeholder="0.00"
-                                  min="0"
-                                  step="0.01"
-                                  className="flex-1 border-2 border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-purple-500"
-                                />
-                                <span className="text-sm text-gray-500">kg</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Analytics Tab */}
-            {activeTab === 1 && (
-              <div className="space-y-8">
-                <div>
-                  <h3 className="text-xl font-semibold mb-4">Category-wise Distribution</h3>
-                  <ResponsiveContainer width="100%" height={350}>
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="category" angle={-45} textAnchor="end" height={100} />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="total" radius={[8, 8, 0, 0]}>
-                        {chartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="text-xl font-semibold mb-4">Proportion by Category</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={chartData.filter(d => d.total > 0)}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={(entry) => `${entry.category.substring(0, 8)}`}
-                          outerRadius={100}
-                          dataKey="total"
-                        >
-                          {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  {historicalData.length > 0 && (
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4">7-Day Trend</h3>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={historicalData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="date" />
-                          <YAxis />
-                          <Tooltip />
-                          <Line type="monotone" dataKey="total" stroke="#8b5cf6" strokeWidth={3} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* History Tab */}
-            {activeTab === 2 && (
-              <div>
-                <h3 className="text-xl font-semibold mb-6">Previously Saved Entries</h3>
-                {Object.keys(entries).length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="text-6xl mb-4">📊</div>
-                    <p className="text-gray-500">No data saved yet. Start by entering today's data!</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {Object.keys(entries)
-                      .sort((a, b) => b.localeCompare(a))
-                      .map((date) => {
-                        const dateTotal = Object.entries(entries[date])
-                          .reduce((sum, [, value]) => sum + (parseFloat(value) || 0), 0);
-                        return (
-                          <div key={date} className="bg-white border-2 border-gray-100 rounded-xl p-5 hover:shadow-lg transition">
-                            <div className="text-sm text-gray-500 mb-1">
-                              {new Date(date).toLocaleDateString('en-US', { 
-                                weekday: 'short', 
-                                year: 'numeric', 
-                                month: 'short', 
-                                day: 'numeric' 
-                              })}
-                            </div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <TrendingUp className="text-green-500" size={20} />
-                              <span className="text-3xl font-bold">{dateTotal.toFixed(2)} kg</span>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-4">
-                              {Object.entries(entries[date]).filter(
-                                ([, value]) => value && parseFloat(value) > 0
-                              ).length} materials recorded
-                            </p>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => {
-                                  setSelectedDate(date);
-                                  setActiveTab(0);
-                                }}
-                                className="flex-1 bg-purple-50 text-purple-600 py-2 rounded-lg font-semibold hover:bg-purple-100 transition"
-                              >
-                                View/Edit
-                              </button>
-                              <button
-                                onClick={() => handleDeleteEntry(date)}
-                                className="bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-100 transition"
-                              >
-                                <Trash2 size={20} />
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-                )}
-              </div>
-            )}
+            <button
+              onClick={() => setCurrentView("entry")}
+              className={`flex-1 md:flex-none py-4 px-6 font-semibold transition flex items-center justify-center gap-2 ${
+                currentView === "entry"
+                  ? 'text-purple-600 border-b-4 border-purple-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Plus size={20} />
+              <span className="hidden md:inline">Data Entry</span>
+            </button>
+            <button
+              onClick={() => setCurrentView("history")}
+              className={`flex-1 md:flex-none py-4 px-6 font-semibold transition flex items-center justify-center gap-2 ${
+                currentView === "history"
+                  ? 'text-purple-600 border-b-4 border-purple-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Clock size={20} />
+              <span className="hidden md:inline">History</span>
+            </button>
           </div>
         </div>
       </div>
 
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-8">
+        {currentView === "dashboard" && <DashboardView />}
+        {currentView === "entry" && <EntryView />}
+        {currentView === "history" && <HistoryView />}
+      </div>
+
       {/* Notification */}
       {showNotification && (
-        <div className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg animate-fade-in">
-          {notificationMessage}
+        <div className="fixed bottom-6 right-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl animate-fade-in z-50">
+          <div className="text-lg font-semibold">{notificationMessage}</div>
         </div>
       )}
     </div>
