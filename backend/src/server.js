@@ -20,7 +20,7 @@ app.use(morgan("dev"));
 app.use(rateLimit(60_000, 300)); // 300 req/min per IP
 
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:5173"||"https://swach-sanket-frontend.onrender.com/",
+  origin: "*",
   credentials: false,
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
