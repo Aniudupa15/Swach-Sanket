@@ -1,3 +1,4 @@
+// models/Entry.js
 import mongoose from "mongoose";
 
 /**
@@ -5,21 +6,38 @@ import mongoose from "mongoose";
  *
  * Fields:
  * - user: reference to the user who recorded the entry
- * - plantId: identifier for the MRF plant (e.g. "plant1", "plant2", "plant3", "plant4" or ObjectId)
+ * - plantId: identifier for the MRF plant (one of the four allowed values)
  * - dateKey: string date key in YYYY-MM-DD (IST)
- * - data: Map of materialName -> weight (Number)
+ * - data: object mapping materialName -> weight (Number)
  *
  * Indexes:
- * - Unique index on { plantId, dateKey } to ensure one entry per plant per day
+ * - Unique index on { plantId, dateKey } to help ensure one entry per plant per day
  */
 
 const entrySchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true, required: true },
-    plantId: { type: String, enum: ["yedapadavu", "narikombu", "ujire", "kedambadi"], required: true ,index: true}, // e.g. "plant1" or DB ObjectId string
-    dateKey: { type: String, required: true, index: true }, // YYYY-MM-DD (IST)
-    // data: { type: Map, of: Number, default: {} }
-    data: { type: Object, default: {} }
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      index: true,
+      required: true
+    },
+    plantId: {
+      type: String,
+      enum: ["yedapadavu", "narikombu", "ujire", "kedambadi"],
+      required: true,
+      index: true
+    },
+    dateKey: {
+      type: String,
+      required: true,
+      index: true // format: YYYY-MM-DD (IST)
+    },
+    // Store as a plain object: materialName -> Number
+    data: {
+      type: Object,
+      default: {}
+    }
   },
   { timestamps: true }
 );
@@ -27,8 +45,7 @@ const entrySchema = new mongoose.Schema(
 // Ensure one entry per plant per date
 entrySchema.index({ plantId: 1, dateKey: 1 }, { unique: true });
 
-// (Optional) if you still need quick lookup by user+date, uncomment the next line.
-// entrySchema.index({ user: 1, dateKey: 1 }, { unique: false });
+// (Optional) keep a user+date index for backward compatibility / quick user lookups
+entrySchema.index({ user: 1, dateKey: 1 }, { unique: false });
 
 export const Entry = mongoose.model("Entry", entrySchema);
-

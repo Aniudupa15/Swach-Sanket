@@ -1,4 +1,4 @@
-// routes/entries.routes.js
+
 import { Router } from "express";
 import { requireAuth } from "../middleware/auth.js";
 import {
@@ -11,10 +11,20 @@ import {
 
 const router = Router();
 
-router.get("/", requireAuth, getEntryByDate);                 // ?dateKey=YYYY-MM-DD [&plantId=plant1]
-router.get("/history", requireAuth, listHistory);             // ?limit=30 [&plantId=plant1]
-router.get("/aggregate", requireAuth, aggregateAllPlants);    // ?dateKey=YYYY-MM-DD  OR ?from=YYYY-MM-DD&to=YYYY-MM-DD [&plants=plant1,plant2]
-router.put("/:dateKey", requireAuth, upsertEntry);            // body: { data: { name: number }, plantId?: "plant1" }
-router.delete("/:dateKey", requireAuth, deleteEntry);         // ?plantId=plant1
+/**
+ * Notes:
+ * - GET /api/entries/aggregate accepts:
+ *   - dateKey=YYYY-MM-DD  (preferred) OR from=YYYY-MM-DD & to=YYYY-MM-DD (range)
+ *   - optional plants=comma,separated,list (e.g. plants=yedapadavu,narikombu)
+ *   - if `plants` is omitted, the controller defaults to all 4 plants
+ *
+ * - Other routes maintain existing behavior (user-scoped unless plantId provided).
+ */
+
+router.get("/", requireAuth, getEntryByDate);                 // ?dateKey=YYYY-MM-DD [&plantId=...]
+router.get("/history", requireAuth, listHistory);             // ?limit=30 [&plantId=...]
+router.get("/aggregate", requireAuth, aggregateAllPlants);    // ?dateKey=... OR ?from=...&to=... [&plants=...]
+router.put("/:dateKey", requireAuth, upsertEntry);            // body: { data: { name: number }, plantId?: "yedapadavu" }
+router.delete("/:dateKey", requireAuth, deleteEntry);         // ?plantId=...
 
 export default router;
