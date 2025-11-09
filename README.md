@@ -1,26 +1,29 @@
 # Swach-Setu
-🚀 Tools Used
+♻️ Digital MRF Management System
 
-RFID Hardware
--Durable, weatherproof passive UHF RFID tags for unique identification of each waste bin.
--Handheld or vehicle-mounted RFID readers for automatic, drive-by bin detection and servicing.
+A MERN Stack-based Digital Dashboard for rural Material Recovery Facilities (MRFs) that enables efficient tracking of waste inflow-outflow, material segregation, and daily collection navigation for truck drivers.
+The project aims to digitize rural waste management operations, bringing transparency, efficiency, and accountability to the system.
 
-IoT Connectivity
--GPRS/4G/5G modules for wireless data transmission from readers/vehicles to the cloud.
--Edge devices/gateways for local data aggregation and reliable syncing in low-connectivity areas.
+🧩 Features
 
-Backend Software & Cloud Infrastructure
--Centralized RFID management software for data collection, storage, and processing.
--Scalable cloud server (AWS, Azure, Google Cloud) for secure storage and analytics.
+📊 Interactive Dashboard for MRF Operators and Zilla Panchayath
 
-Web-Based Dashboard and Analytics
--Responsive web application for real-time monitoring, built with React frontend and Node.js backend.
--Data visualization tools for maps, charts, and collection reports.
--Role-based user management for MCC staff and supervisors.
+♻️ Data entry for 33 segregated waste materials
 
-Data Analytics & Reporting
--Analytics engine (Python, R, or built-in modules) for route optimization, missed bin detection, and efficiency analysis.
--Automated alerts (SMS, email, in-app) for missed pickups, route deviations, or bin overflows.
+🚛 Navigation system for MRF Truck Drivers to plan daily routes
 
-Integration APIs
--RESTful APIs for seamless integration with Smart City platforms, citizen apps, and third-party services.
+📱 Offline-first functionality using IndexedDB and Service Workers
+
+🔄 Automatic data sync when the internet is available
+
+🧾 Visual reports and charts for quick decision-making
+
+🔐 Role-based access for operators and administrators
+
+🏗️ Tech Stack
+
+Frontend: React.js, Recharts, CSS
+Backend: Node.js, Express.js
+Database: MongoDB
+Offline Support: IndexedDB (via Dexie.js)
+Visualization: Recharts
