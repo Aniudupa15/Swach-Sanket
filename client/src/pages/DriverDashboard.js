@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Play, Square, Navigation, Home, Locate, Compass } from "lucide-react";
+import {
+  Play,
+  Square,
+  Navigation,
+  Home,
+  Locate,
+  Compass,
+  LogOut,
+} from "lucide-react";
 
 /* ================= ROUTES ================= */
 const ROUTES = [
@@ -9,9 +17,27 @@ const ROUTES = [
     area: "Yelahanka, Hesaraghatta, Jala Hobli",
     color: "#3b82f6",
     panchayats: [
-      { id: 101, name: "Yelahanka GP", address: "Yelahanka", lat: 13.1007, lng: 77.5963 },
-      { id: 102, name: "Kogilu GP", address: "Kogilu", lat: 13.1249, lng: 77.5819 },
-      { id: 103, name: "Vidyaranyapura GP", address: "Vidyaranyapura", lat: 13.0794, lng: 77.5540 },
+      {
+        id: 101,
+        name: "Yelahanka GP",
+        address: "Yelahanka",
+        lat: 13.1007,
+        lng: 77.5963,
+      },
+      {
+        id: 102,
+        name: "Kogilu GP",
+        address: "Kogilu",
+        lat: 13.1249,
+        lng: 77.5819,
+      },
+      {
+        id: 103,
+        name: "Vidyaranyapura GP",
+        address: "Vidyaranyapura",
+        lat: 13.0794,
+        lng: 77.554,
+      },
     ],
   },
 ];
@@ -21,14 +47,16 @@ if (!document.getElementById("leaflet-css")) {
   const css = document.createElement("link");
   css.id = "leaflet-css";
   css.rel = "stylesheet";
-  css.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";
+  css.href =
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";
   document.head.appendChild(css);
 }
 if (!document.getElementById("leaflet-routing-css")) {
   const css = document.createElement("link");
   css.id = "leaflet-routing-css";
   css.rel = "stylesheet";
-  css.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.css";
+  css.href =
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.css";
   document.head.appendChild(css);
 }
 
@@ -63,8 +91,14 @@ export default function DriverDashboard() {
         document.body.appendChild(s);
       });
     (async () => {
-      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js", "leaflet-js");
-      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js", "leaflet-routing-js");
+      await loadScript(
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js",
+        "leaflet-js"
+      );
+      await loadScript(
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js",
+        "leaflet-routing-js"
+      );
       setLeafletLoaded(true);
     })();
   }, []);
@@ -84,18 +118,19 @@ export default function DriverDashboard() {
       (err) => console.error("Geo error:", err),
       { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
     );
+
     return () => navigator.geolocation.clearWatch(watchId);
   }, [status]);
 
   /* Calculate distance between coordinates */
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371;
+    const R = 6371; // km
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
       Math.sin(dLat / 2) ** 2 +
-      Math.cos(lat1 * Math.PI / 180) *
-        Math.cos(lat2 * Math.PI / 180) *
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
         Math.sin(dLon / 2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   };
@@ -115,7 +150,13 @@ export default function DriverDashboard() {
 
   /* Initialize map */
   useEffect(() => {
-    if (!leafletLoaded || !mapRef.current || !selectedRoute || status !== "active") return;
+    if (
+      !leafletLoaded ||
+      !mapRef.current ||
+      !selectedRoute ||
+      status !== "active"
+    )
+      return;
     const L = window.L;
     if (!L) return;
 
@@ -129,21 +170,27 @@ export default function DriverDashboard() {
         maxZoom: 19,
       }).addTo(map);
       mapInstanceRef.current = map;
-      map.invalidateSize();
     }
-  }, [leafletLoaded, selectedRoute, status, currentPanchayat?.lat, currentPanchayat?.lng]);
+  }, [leafletLoaded, selectedRoute, status, currentPanchayat]);
 
   /* Routing and markers */
   useEffect(() => {
     const L = window.L;
-    if (!L || !leafletLoaded || !selectedRoute || !currentPanchayat || !mapInstanceRef.current) return;
+    if (
+      !L ||
+      !leafletLoaded ||
+      !selectedRoute ||
+      !currentPanchayat ||
+      !mapInstanceRef.current
+    )
+      return;
     const map = mapInstanceRef.current;
 
     if (routingControlRef.current) {
       try {
         map.removeControl(routingControlRef.current);
       } catch {
-        // ignore
+        /* ignore */
       }
     }
 
@@ -153,7 +200,9 @@ export default function DriverDashboard() {
           L.latLng(userLocation.lat, userLocation.lng),
           L.latLng(currentPanchayat.lat, currentPanchayat.lng),
         ],
-        router: L.Routing.osrmv1({ serviceUrl: "https://router.project-osrm.org/route/v1" }),
+        router: L.Routing.osrmv1({
+          serviceUrl: "https://router.project-osrm.org/route/v1",
+        }),
         addWaypoints: false,
         show: false,
         lineOptions: { styles: [{ color: selectedRoute.color, weight: 5 }] },
@@ -161,9 +210,13 @@ export default function DriverDashboard() {
       }).addTo(map);
     }
 
-    L.marker([currentPanchayat.lat, currentPanchayat.lng]).addTo(map);
+    L.marker([currentPanchayat.lat, currentPanchayat.lng])
+      .addTo(map)
+      .bindPopup(currentPanchayat.name)
+      .openPopup();
+
     map.setView([currentPanchayat.lat, currentPanchayat.lng], 13);
-  }, [userLocation, currentPanchayatIndex, leafletLoaded, selectedRoute, currentPanchayat]);
+  }, [userLocation, currentPanchayatIndex, leafletLoaded, selectedRoute]);
 
   /* Route controls */
   const startRoute = (route) => {
@@ -175,6 +228,7 @@ export default function DriverDashboard() {
   const resetRoute = () => {
     setStatus("idle");
     setSelectedRoute(null);
+    setCurrentPanchayatIndex(0);
     if (mapInstanceRef.current) {
       mapInstanceRef.current.remove();
       mapInstanceRef.current = null;
@@ -193,7 +247,7 @@ export default function DriverDashboard() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
         <div className="max-w-5xl mx-auto">
-          <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl shadow-xl p-8 mb-8">
+          <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl shadow-xl p-8 mb-8 flex justify-between items-center">
             <div className="flex items-center gap-4">
               <div className="bg-white/20 p-4 rounded-xl">
                 <Navigation size={40} />
@@ -203,6 +257,17 @@ export default function DriverDashboard() {
                 <p className="text-green-100">Select route for navigation</p>
               </div>
             </div>
+
+            <button
+              onClick={() => {
+                localStorage.removeItem("auth_token");
+                window.location.href = "/login";
+              }}
+              className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition flex items-center gap-2"
+            >
+              <LogOut size={18} />
+              <span>Logout</span>
+            </button>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">

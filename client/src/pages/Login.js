@@ -35,7 +35,9 @@ export default function LoginPage() {
 
       localStorage.setItem("auth_token", token);
       localStorage.setItem("user_email", email);
-      navigate("/dashboard");
+      // navigate("/dashboard");
+      // navigate("/zilla-dashboard");
+      navigate("/driver-dashboard");
     } catch (err) {
       const errorMessage =
         err.response?.data?.message || err.message || "Login failed. Please try again.";
@@ -187,7 +189,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Demo Credentials */}
+            {/* Demo Credentials
             <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
               <p className="text-xs text-gray-500 text-center mb-2 font-medium">
                 Demo Credentials
@@ -198,7 +200,7 @@ export default function LoginPage() {
               <p className="text-sm text-gray-700 text-center">
                 <span className="font-medium">Password:</span> password123
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
 
