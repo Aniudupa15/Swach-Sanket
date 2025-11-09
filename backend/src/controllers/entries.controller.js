@@ -13,7 +13,7 @@ const upsertSchema = z.object({
 });
 
 /**
- * GET /api/entries?dateKey=YYYY-MM-DD[&plantId=plant1]
+ * GET /api/entries?dateKey=YYYY-MM-DD[&plantId=...]
  *
  * - If plantId is provided, returns the entry for that plant & date (if any).
  * - If plantId is NOT provided, returns the entry for the authenticated user (existing behaviour).
@@ -27,10 +27,10 @@ export const getEntryByDate = async (req, res, next) => {
 
     if (plantId) {
       // fetch by plant + date
-      entry = await Entry.findOne({ plantId, dateKey });
+      entry = await Entry.findOne({ plantId, dateKey }).lean();
     } else {
       // existing behaviour: fetch by user + date
-      entry = await Entry.findOne({ user: req.user._id, dateKey });
+      entry = await Entry.findOne({ user: req.user._id, dateKey }).lean();
     }
 
     res.json({ entry: entry || { dateKey, data: {} } });
@@ -74,7 +74,7 @@ export const upsertEntry = async (req, res, next) => {
       query,
       update,
       { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
+    ).lean();
 
     res.json({ message: "Saved", entry });
   } catch (e) {
@@ -120,7 +120,8 @@ export const listHistory = async (req, res, next) => {
 
     const entries = await Entry.find(q)
       .sort({ dateKey: -1 })
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     res.json({ entries });
   } catch (e) {
@@ -129,47 +130,56 @@ export const listHistory = async (req, res, next) => {
 };
 
 /**
- * NEW: GET /api/entries/aggregate?dateKey=YYYY-MM-DD
- *      OR /api/entries/aggregate?from=YYYY-MM-DD&to=YYYY-MM-DD
- *      Optional: &plants=plant1,plant2
+ * NEW: GET /api/entries/aggregate
  *
- * Returns aggregated totals per plant and overall totals across plants.
+ * Behavior required:
+ * - Primary input is a single date (dateKey=YYYY-MM-DD). If not provided, defaults to today's IST date.
+ * - Optional: from & to (date range). If provided, range used instead of single date.
+ * - Optional: plants=comma,separated list. If omitted, default to all four plants.
+ *
+ * Example:
+ *  GET /api/entries/aggregate?dateKey=2025-11-08
+ *  GET /api/entries/aggregate?dateKey=2025-11-08&plants=yedapadavu,narikombu
+ *  GET /api/entries/aggregate?from=2025-11-01&to=2025-11-07
  */
 export const aggregateAllPlants = async (req, res, next) => {
   try {
-    const { dateKey, from, to, plants } = req.query;
+    // Accept dateKey OR a range (from,to). If neither, default dateKey to today (IST).
+    let { dateKey, from, to, plants } = req.query;
 
-    // Validate date params
     if (!dateKey && !(from && to)) {
-      return res.status(400).json({ message: "Provide dateKey or from+to range" });
+      // default to today's dateKey in IST
+      dateKey = toISTDateKey();
     }
 
-    const q = {};
-    if (dateKey) {
-      q.dateKey = dateKey;
-    } else {
-      // inclusive range
-      q.dateKey = { $gte: from, $lte: to };
+    const ALL_PLANTS = ["yedapadavu", "narikombu", "ujire", "kedambadi"];
+
+    // parse plants param; default to ALL_PLANTS when not provided or empty
+    let plantArray = ALL_PLANTS;
+    if (typeof plants === "string" && plants.trim().length > 0) {
+      plantArray = plants.split(",").map(p => p.trim()).filter(Boolean);
+      // sanitize: only allow known plant ids
+      plantArray = plantArray.filter(p => ALL_PLANTS.includes(p));
+      if (plantArray.length === 0) plantArray = ALL_PLANTS;
     }
 
-    if (plants) {
-      const plantArray = plants.split(",").map(p => p.trim()).filter(Boolean);
-      if (plantArray.length) q.plantId = { $in: plantArray };
-    }
+    // build query: include plant filter
+    const q = { plantId: { $in: plantArray } };
+    if (dateKey) q.dateKey = dateKey;
+    else q.dateKey = { $gte: from, $lte: to };
 
-    // fetch all matching entries
+    // find matching entries
     const entries = await Entry.find(q).lean();
 
     // Aggregate per plant and overall
-    const perPlant = {}; // { plantId: { materialName: total } }
-    const overall = {};  // { materialName: total }
+    const perPlant = {};
+    const overall = {};
+    // initialize perPlant with empty objects for predictable keys
+    plantArray.forEach(pid => (perPlant[pid] = {}));
 
     entries.forEach(entry => {
       const pid = entry.plantId || "unknown";
-      if (!perPlant[pid]) perPlant[pid] = {};
-
       const dataObj = entry.data || {};
-      // dataObj might be a Map (Mongoose Map) or plain object; handle both
       const items = (dataObj instanceof Map) ? Array.from(dataObj.entries()) : Object.entries(dataObj);
 
       items.forEach(([name, val]) => {
@@ -180,7 +190,12 @@ export const aggregateAllPlants = async (req, res, next) => {
     });
 
     res.json({
-      query: { dateKey, from, to, plants },
+      query: {
+        dateKey: dateKey || null,
+        from: from || null,
+        to: to || null,
+        plants: plantArray
+      },
       counts: { perPlant, overall },
       meta: { entriesCount: entries.length }
     });

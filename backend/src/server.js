@@ -12,6 +12,7 @@ import materialsRoutes from "./routes/materials.routes.js";
 import entriesRoutes from "./routes/entries.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
 
+
 const app = express();
 
 app.use(helmet());
