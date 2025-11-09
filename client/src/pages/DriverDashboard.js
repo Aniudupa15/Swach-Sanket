@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Play,
   Square,
@@ -17,27 +17,9 @@ const ROUTES = [
     area: "Yelahanka, Hesaraghatta, Jala Hobli",
     color: "#3b82f6",
     panchayats: [
-      {
-        id: 101,
-        name: "Yelahanka GP",
-        address: "Yelahanka",
-        lat: 13.1007,
-        lng: 77.5963,
-      },
-      {
-        id: 102,
-        name: "Kogilu GP",
-        address: "Kogilu",
-        lat: 13.1249,
-        lng: 77.5819,
-      },
-      {
-        id: 103,
-        name: "Vidyaranyapura GP",
-        address: "Vidyaranyapura",
-        lat: 13.0794,
-        lng: 77.554,
-      },
+      { id: 101, name: "Yelahanka GP", address: "Yelahanka", lat: 13.1007, lng: 77.5963 },
+      { id: 102, name: "Kogilu GP", address: "Kogilu", lat: 13.1249, lng: 77.5819 },
+      { id: 103, name: "Vidyaranyapura GP", address: "Vidyaranyapura", lat: 13.0794, lng: 77.554 },
     ],
   },
 ];
@@ -47,16 +29,14 @@ if (!document.getElementById("leaflet-css")) {
   const css = document.createElement("link");
   css.id = "leaflet-css";
   css.rel = "stylesheet";
-  css.href =
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";
+  css.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";
   document.head.appendChild(css);
 }
 if (!document.getElementById("leaflet-routing-css")) {
   const css = document.createElement("link");
   css.id = "leaflet-routing-css";
   css.rel = "stylesheet";
-  css.href =
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.css";
+  css.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.css";
   document.head.appendChild(css);
 }
 
@@ -91,10 +71,7 @@ export default function DriverDashboard() {
         document.body.appendChild(s);
       });
     (async () => {
-      await loadScript(
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js",
-        "leaflet-js"
-      );
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js", "leaflet-js");
       await loadScript(
         "https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js",
         "leaflet-routing-js"
@@ -112,7 +89,7 @@ export default function DriverDashboard() {
       (pos) => {
         const { latitude, longitude, speed, heading } = pos.coords;
         setUserLocation({ lat: latitude, lng: longitude });
-        setSpeed(speed ? (speed * 3.6).toFixed(1) : 0); // Convert m/s → km/h
+        setSpeed(speed ? (speed * 3.6).toFixed(1) : 0); // m/s → km/h
         setHeading(heading ?? null);
       },
       (err) => console.error("Geo error:", err),
@@ -122,8 +99,8 @@ export default function DriverDashboard() {
     return () => navigator.geolocation.clearWatch(watchId);
   }, [status]);
 
-  /* Calculate distance between coordinates */
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  /* Calculate distance between coordinates (stable reference for effects) */
+  const calculateDistance = useCallback((lat1, lon1, lat2, lon2) => {
     const R = 6371; // km
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -133,7 +110,7 @@ export default function DriverDashboard() {
         Math.cos((lat2 * Math.PI) / 180) *
         Math.sin(dLon / 2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  };
+  }, []);
 
   /* Compute distance to next panchayat */
   useEffect(() => {
@@ -146,53 +123,47 @@ export default function DriverDashboard() {
       );
       setDistanceToNext(dist);
     }
-  }, [userLocation, currentPanchayat]);
+  }, [userLocation, currentPanchayat, calculateDistance]);
 
   /* Initialize map */
   useEffect(() => {
-    if (
-      !leafletLoaded ||
-      !mapRef.current ||
-      !selectedRoute ||
-      status !== "active"
-    )
-      return;
+    if (!leafletLoaded || !mapRef.current || !selectedRoute || status !== "active" || !currentPanchayat) return;
     const L = window.L;
     if (!L) return;
 
     if (!mapInstanceRef.current) {
-      const map = L.map(mapRef.current).setView(
-        [currentPanchayat.lat, currentPanchayat.lng],
-        13
-      );
+      const map = L.map(mapRef.current).setView([currentPanchayat.lat, currentPanchayat.lng], 13);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors",
         maxZoom: 19,
       }).addTo(map);
       mapInstanceRef.current = map;
+    } else {
+      // keep map centered with current target if already created
+      mapInstanceRef.current.setView([currentPanchayat.lat, currentPanchayat.lng], 13);
     }
   }, [leafletLoaded, selectedRoute, status, currentPanchayat]);
 
   /* Routing and markers */
   useEffect(() => {
     const L = window.L;
-    if (
-      !L ||
-      !leafletLoaded ||
-      !selectedRoute ||
-      !currentPanchayat ||
-      !mapInstanceRef.current
-    )
-      return;
+    if (!L || !leafletLoaded || !selectedRoute || !currentPanchayat || !mapInstanceRef.current) return;
     const map = mapInstanceRef.current;
 
+    // remove previous routing control if any
     if (routingControlRef.current) {
       try {
         map.removeControl(routingControlRef.current);
       } catch {
         /* ignore */
       }
+      routingControlRef.current = null;
     }
+
+    // place marker for the current panchayat
+    const targetMarker = L.marker([currentPanchayat.lat, currentPanchayat.lng])
+      .addTo(map)
+      .bindPopup(currentPanchayat.name);
 
     if (userLocation) {
       routingControlRef.current = L.Routing.control({
@@ -200,9 +171,7 @@ export default function DriverDashboard() {
           L.latLng(userLocation.lat, userLocation.lng),
           L.latLng(currentPanchayat.lat, currentPanchayat.lng),
         ],
-        router: L.Routing.osrmv1({
-          serviceUrl: "https://router.project-osrm.org/route/v1",
-        }),
+        router: L.Routing.osrmv1({ serviceUrl: "https://router.project-osrm.org/route/v1" }),
         addWaypoints: false,
         show: false,
         lineOptions: { styles: [{ color: selectedRoute.color, weight: 5 }] },
@@ -210,13 +179,17 @@ export default function DriverDashboard() {
       }).addTo(map);
     }
 
-    L.marker([currentPanchayat.lat, currentPanchayat.lng])
-      .addTo(map)
-      .bindPopup(currentPanchayat.name)
-      .openPopup();
-
     map.setView([currentPanchayat.lat, currentPanchayat.lng], 13);
-  }, [userLocation, currentPanchayatIndex, leafletLoaded, selectedRoute]);
+
+    // cleanup marker when deps change
+    return () => {
+      try {
+        map.removeLayer(targetMarker);
+      } catch {
+        /* ignore */
+      }
+    };
+  }, [userLocation, currentPanchayatIndex, currentPanchayat, leafletLoaded, selectedRoute]);
 
   /* Route controls */
   const startRoute = (route) => {
@@ -233,6 +206,7 @@ export default function DriverDashboard() {
       mapInstanceRef.current.remove();
       mapInstanceRef.current = null;
     }
+    routingControlRef.current = null;
   };
 
   /* Convert heading degrees to direction text */
@@ -278,9 +252,7 @@ export default function DriverDashboard() {
               >
                 <div
                   className="p-6 text-white"
-                  style={{
-                    background: `linear-gradient(135deg, ${r.color} 0%, ${r.color}cc 100%)`,
-                  }}
+                  style={{ background: `linear-gradient(135deg, ${r.color} 0%, ${r.color}cc 100%)` }}
                 >
                   <h2 className="text-2xl font-bold mb-1">{r.name}</h2>
                   <p>{r.area}</p>
@@ -312,9 +284,7 @@ export default function DriverDashboard() {
         <div className="max-w-5xl mx-auto mb-6">
           <div
             className="rounded-2xl shadow-xl text-white p-4 flex justify-between items-center"
-            style={{
-              background: `linear-gradient(135deg, ${selectedRoute.color} 0%, ${selectedRoute.color}cc 100%)`,
-            }}
+            style={{ background: `linear-gradient(135deg, ${selectedRoute.color} 0%, ${selectedRoute.color}cc 100%)` }}
           >
             <h2 className="text-xl font-bold">{selectedRoute.name}</h2>
             <button
@@ -351,26 +321,19 @@ export default function DriverDashboard() {
               )}
 
               {/* Overlay Info */}
-              {userLocation && (
+              {userLocation && currentPanchayat && (
                 <div className="absolute bottom-4 left-4 right-4 bg-white rounded-xl shadow-lg p-4 flex justify-between items-center">
                   <div>
                     <div className="text-sm text-gray-500">Current Speed</div>
-                    <div className="text-3xl font-bold text-blue-600">
-                      {speed} km/h
-                    </div>
+                    <div className="text-3xl font-bold text-blue-600">{speed} km/h</div>
                   </div>
                   <div className="text-center">
                     <Compass
                       size={36}
                       className="mx-auto text-gray-700"
-                      style={{
-                        transform: `rotate(${heading || 0}deg)`,
-                        transition: "transform 0.5s linear",
-                      }}
+                      style={{ transform: `rotate(${heading || 0}deg)`, transition: "transform 0.5s linear" }}
                     />
-                    <div className="text-sm font-semibold text-gray-600">
-                      {getDirection(heading)}
-                    </div>
+                    <div className="text-sm font-semibold text-gray-600">{getDirection(heading)}</div>
                   </div>
                   <div className="text-right">
                     <div className="text-sm text-gray-500">Next Stop</div>
@@ -390,7 +353,7 @@ export default function DriverDashboard() {
         </div>
 
         <div className="text-center text-gray-600 font-semibold">
-          {distanceToNext !== null && (
+          {distanceToNext !== null && currentPanchayat && (
             <p>
               {distanceToNext < 0.3
                 ? `Arriving at ${currentPanchayat.name}`

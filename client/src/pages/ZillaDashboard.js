@@ -597,8 +597,9 @@
 //   );
 // }
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useCallback} from 'react';
 import { Plus, Trash2, MapPin, TrendingUp, AlertCircle, CheckCircle, Mail, Lock, Eye, EyeOff, Copy, Check, RefreshCw } from 'lucide-react';
+
 
 export default function MRFDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -688,67 +689,63 @@ export default function MRFDashboard() {
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [formStep, setFormStep] = useState(1);
 
-  // Fetch data from API
+  
+const fetchPlantData = useCallback(async () => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+    let url = `${API_BASE_URL}/api/entries/aggregate-all-plants?`;
+
+    if (selectedDateRange === 'today') {
+      url += 'plants=yedapadavu,narikombu,ujire,kedambadi';
+    } else if (selectedDateRange === 'week') {
+      const today = new Date();
+      const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      url += `from=${weekAgo.toISOString().split('T')[0]}&to=${today.toISOString().split('T')[0]}&plants=yedapadavu,narikombu,ujire,kedambadi`;
+    } else if (selectedDateRange === 'month') {
+      const today = new Date();
+      const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+      url += `from=${monthAgo.toISOString().split('T')[0]}&to=${today.toISOString().split('T')[0]}&plants=yedapadavu,narikombu,ujire,kedambadi`;
+    }
+
+    const response = await fetch(url);
+
+    if (!response.ok) throw new Error('Failed to fetch data from API');
+
+    const data = await response.json();
+    setApiData(data);
+
+    if (data.counts && data.counts.perPlant) {
+      setMrfs(prevMrfs => prevMrfs.map(mrf => {
+        const plantData = data.counts.perPlant[mrf.plantId];
+        if (plantData) {
+          const totalWeight = Object.values(plantData).reduce((sum, val) => sum + val, 0);
+          const itemCount = Object.keys(plantData).length;
+          return {
+            ...mrf,
+            currentLoad: Math.round(totalWeight),
+            collections: itemCount,
+            lastCollection: 'Recently'
+          };
+        }
+        return mrf;
+      }));
+    }
+
+  } catch (err) {
+    setError(err.message);
+    console.error('Error fetching plant data:', err);
+  } finally {
+    setLoading(false);
+  }
+}, [selectedDateRange]); // ✅ Add dependency here
+
+// Fetch data from API
   useEffect(() => {
     fetchPlantData();
-  }, [selectedDateRange]);
-
-  const fetchPlantData = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Replace with your actual API endpoint
-      const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000"; // ⚠️ UPDATE THIS WITH YOUR ACTUAL API URL
-      let url = `${API_BASE_URL}/api/entries/aggregate-all-plants`;
-      
-      if (selectedDateRange === 'today') {
-        // Let backend default to today
-        url += 'plants=yedapadavu,narikombu,ujire,kedambadi';
-      } else if (selectedDateRange === 'week') {
-        const today = new Date();
-        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        url += `from=${weekAgo.toISOString().split('T')[0]}&to=${today.toISOString().split('T')[0]}&plants=yedapadavu,narikombu,ujire,kedambadi`;
-      } else if (selectedDateRange === 'month') {
-        const today = new Date();
-        const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-        url += `from=${monthAgo.toISOString().split('T')[0]}&to=${today.toISOString().split('T')[0]}&plants=yedapadavu,narikombu,ujire,kedambadi`;
-      }
-
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch data from API');
-      }
-      
-      const data = await response.json();
-      setApiData(data);
-      
-      // Update MRF data with API response
-      if (data.counts && data.counts.perPlant) {
-        setMrfs(prevMrfs => prevMrfs.map(mrf => {
-          const plantData = data.counts.perPlant[mrf.plantId];
-          if (plantData) {
-            const totalWeight = Object.values(plantData).reduce((sum, val) => sum + val, 0);
-            const itemCount = Object.keys(plantData).length;
-            return {
-              ...mrf,
-              currentLoad: Math.round(totalWeight),
-              collections: itemCount,
-              lastCollection: 'Recently'
-            };
-          }
-          return mrf;
-        }));
-      }
-      
-    } catch (err) {
-      setError(err.message);
-      console.error('Error fetching plant data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchPlantData]);
 
   const generatePassword = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
