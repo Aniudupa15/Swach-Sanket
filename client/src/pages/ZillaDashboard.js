@@ -1,74 +1,83 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, MapPin, TrendingUp, AlertCircle, CheckCircle, Mail, Lock, Eye, EyeOff, Copy, Check } from 'lucide-react';
+import React, { useState, useEffect ,useCallback} from 'react';
+import { Plus, Trash2, MapPin, TrendingUp, AlertCircle, CheckCircle, Mail, Lock, Eye, EyeOff, Copy, Check, RefreshCw,LogOut} from 'lucide-react';
+
 
 export default function MRFDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddMRF, setShowAddMRF] = useState(false);
   const [copiedPassword, setCopiedPassword] = useState(null);
   const [showPassword, setShowPassword] = useState({});
+  const [apiData, setApiData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedDateRange, setSelectedDateRange] = useState('today');
   
   const [mrfs, setMrfs] = useState([
     {
       id: 1,
-      name: 'Central MRF Station',
-      email: 'central.mrf@zillapanchayat.gov',
-      password: 'MRF#2024$Cen',
-      location: 'Zone A - Main Street',
+      name: 'Yedapadavu MRF',
+      plantId: 'yedapadavu',
+      email: 'yedapadavu.mrf@zillapanchayat.gov',
+      password: 'MRF#2024$Yed',
+      location: 'Yedapadavu, Karnataka',
       capacity: 500,
-      currentLoad: 380,
+      currentLoad: 0,
       status: 'operational',
-      collections: 145,
-      lastCollection: '2 hours ago',
+      collections: 0,
+      lastCollection: 'Loading...',
       createdDate: '2024-01-15'
     },
     {
       id: 2,
-      name: 'East Side MRF',
-      email: 'eastside.mrf@zillapanchayat.gov',
-      password: 'MRF#2024$Eas',
-      location: 'Zone B - Industrial Area',
+      name: 'Narikombu MRF',
+      plantId: 'narikombu',
+      email: 'narikombu.mrf@zillapanchayat.gov',
+      password: 'MRF#2024$Nar',
+      location: 'Narikombu, Karnataka',
       capacity: 400,
-      currentLoad: 320,
+      currentLoad: 0,
       status: 'operational',
-      collections: 98,
-      lastCollection: '4 hours ago',
+      collections: 0,
+      lastCollection: 'Loading...',
       createdDate: '2024-02-20'
     },
     {
       id: 3,
-      name: 'West Point MRF',
-      email: 'westpoint.mrf@zillapanchayat.gov',
-      password: 'MRF#2024$Wes',
-      location: 'Zone C - Residential',
+      name: 'Ujire MRF',
+      plantId: 'ujire',
+      email: 'ujire.mrf@zillapanchayat.gov',
+      password: 'MRF#2024$Uji',
+      location: 'Ujire, Karnataka',
       capacity: 350,
-      currentLoad: 290,
-      status: 'maintenance',
-      collections: 76,
-      lastCollection: '1 day ago',
+      currentLoad: 0,
+      status: 'operational',
+      collections: 0,
+      lastCollection: 'Loading...',
       createdDate: '2024-03-10'
     },
     {
       id: 4,
-      name: 'North Hub MRF',
-      email: 'northhub.mrf@zillapanchayat.gov',
-      password: 'MRF#2024$Nor',
-      location: 'Zone D - Commercial',
+      name: 'Kedambadi MRF',
+      plantId: 'kedambadi',
+      email: 'kedambadi.mrf@zillapanchayat.gov',
+      password: 'MRF#2024$Ked',
+      location: 'Kedambadi, Karnataka',
       capacity: 450,
-      currentLoad: 180,
+      currentLoad: 0,
       status: 'operational',
-      collections: 112,
-      lastCollection: '3 hours ago',
+      collections: 0,
+      lastCollection: 'Loading...',
       createdDate: '2024-04-05'
     }
   ]);
 
   const [collections] = useState([
-    { id: 1, mrfName: 'Central MRF Station', type: 'Plastic', weight: 45, date: '2025-11-08', time: '09:30' },
-    { id: 2, mrfName: 'East Side MRF', type: 'Paper', weight: 78, date: '2025-11-08', time: '10:15' },
-    { id: 3, mrfName: 'Central MRF Station', type: 'Metal', weight: 32, date: '2025-11-08', time: '11:00' },
-    { id: 4, mrfName: 'North Hub MRF', type: 'Glass', weight: 56, date: '2025-11-08', time: '08:45' },
-    { id: 5, mrfName: 'West Point MRF', type: 'Plastic', weight: 41, date: '2025-11-07', time: '14:20' },
-    { id: 6, mrfName: 'East Side MRF', type: 'Organic', weight: 92, date: '2025-11-07', time: '16:30' }
+    { id: 1, mrfName: 'Yedapadavu MRF', type: 'Plastic', weight: 45, date: '2025-11-08', time: '09:30' },
+    { id: 2, mrfName: 'Narikombu MRF', type: 'Paper', weight: 78, date: '2025-11-08', time: '10:15' },
+    { id: 3, mrfName: 'Yedapadavu MRF', type: 'Metal', weight: 32, date: '2025-11-08', time: '11:00' },
+    { id: 4, mrfName: 'Kedambadi MRF', type: 'Glass', weight: 56, date: '2025-11-08', time: '08:45' },
+    { id: 5, mrfName: 'Ujire MRF', type: 'Plastic', weight: 41, date: '2025-11-07', time: '14:20' },
+    { id: 6, mrfName: 'Narikombu MRF', type: 'Organic', weight: 92, date: '2025-11-07', time: '16:30' }
   ]);
 
   const [newMRF, setNewMRF] = useState({
@@ -80,6 +89,45 @@ export default function MRFDashboard() {
 
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [formStep, setFormStep] = useState(1);
+
+  const fetchPlantData = useCallback(async () => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const API_BASE_URL = process.env.REACT_APP_API_BASE || "https://swach-sanket.onrender.com";
+    let url = `${API_BASE_URL}/api/entries/aggregate-all-plants`;
+
+    const params = new URLSearchParams();
+    params.append('plants', 'yedapadavu,narikombu,ujire,kedambadi');
+    console.log("🌐 Fetching:", `${url}?${params.toString()}`);
+
+    const response = await fetch(`${url}?${params.toString()}`, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": localStorage.getItem("auth_token") || "",
+      },
+    });
+
+    console.log("🔍 Response Status:", response.status);
+    if (!response.ok) throw new Error(`Failed to fetch (status ${response.status})`);
+
+    const data = await response.json();
+    console.log("✅ Data:", data);
+    setApiData(data);
+  } catch (err) {
+    console.error("❌ Fetch error:", err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
+
+// Fetch data from API
+  useEffect(() => {
+    fetchPlantData();
+  }, [fetchPlantData]);
 
   const generatePassword = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
@@ -103,9 +151,39 @@ export default function MRFDashboard() {
     }
   };
 
-  const handleAddMRF = () => {
-    const newId = Math.max(...mrfs.map(m => m.id)) + 1;
-    setMrfs([...mrfs, {
+  const handleAddMRF = async () => {
+  try {
+    const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000/";
+    console.log("📡 Sending registration to:", `${API_BASE_URL}/api/auth/register`);
+
+    // Build payload for registration
+    const registerPayload = {
+      email: newMRF.email,
+      name: newMRF.name,
+      role: "mrf_operator", // ✅ required role
+      password: generatedPassword,
+    };
+
+    // 1️⃣ Send registration request
+    const response = await fetch(`${API_BASE_URL}api/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(registerPayload),
+    });
+
+    // 2️⃣ Check for success
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Registration failed (${response.status}): ${errorText}`);
+    }
+
+    console.log("✅ MRF operator registered successfully!");
+
+    // 3️⃣ Add MRF locally (UI update)
+    const newId = Math.max(...mrfs.map((m) => m.id)) + 1;
+    const newEntry = {
       id: newId,
       name: newMRF.name,
       email: newMRF.email,
@@ -113,16 +191,27 @@ export default function MRFDashboard() {
       location: newMRF.location,
       capacity: parseInt(newMRF.capacity),
       currentLoad: 0,
-      status: 'operational',
+      status: "operational",
       collections: 0,
-      lastCollection: 'Never',
-      createdDate: new Date().toISOString().split('T')[0]
-    }]);
-    setNewMRF({ name: '', email: '', location: '', capacity: '' });
-    setGeneratedPassword('');
+      lastCollection: "Never",
+      createdDate: new Date().toISOString().split("T")[0],
+    };
+
+    setMrfs((prev) => [...prev, newEntry]);
+
+    // 4️⃣ Reset modal form
+    setNewMRF({ name: "", email: "", location: "", capacity: "" });
+    setGeneratedPassword("");
     setFormStep(1);
     setShowAddMRF(false);
-  };
+
+    alert(`✅ ${newMRF.name} registered successfully as MRF Operator!`);
+  } catch (error) {
+    console.error("❌ Error registering MRF:", error);
+    alert(`Error registering MRF: ${error.message}`);
+  }
+};
+
 
   const handleCloseModal = () => {
     setShowAddMRF(false);
@@ -194,11 +283,54 @@ export default function MRFDashboard() {
                 </div>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-slate-500">Last Updated</p>
-              <p className="text-lg font-semibold text-slate-800">Nov 08, 2025</p>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm text-slate-500">Data Range</p>
+                <select 
+                  value={selectedDateRange}
+                  onChange={(e) => setSelectedDateRange(e.target.value)}
+                  className="text-sm font-semibold text-slate-800 border border-slate-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="today">Today</option>
+                  <option value="week">Last 7 Days</option>
+                  <option value="month">Last 30 Days</option>
+                </select>
+              </div>
+              <button
+                onClick={fetchPlantData}
+                disabled={loading}
+                className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition-all disabled:opacity-50"
+              >
+                <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+              </button>
+              <button
+              onClick={() => {
+                localStorage.removeItem("auth_token");
+                window.location.href = "/";
+              }}
+              className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition flex items-center gap-2"
+            >
+              <LogOut size={18} />
+              <span>Logout</span>
+            </button>
             </div>
           </div>
+          
+          {error && (
+            <div className="mt-4 bg-rose-50 border border-rose-200 rounded-lg p-3 flex items-center gap-2">
+              <AlertCircle className="text-rose-600" size={18} />
+              <p className="text-sm text-rose-800">Error loading data: {error}</p>
+            </div>
+          )}
+          
+          {apiData && (
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs text-blue-800 font-medium">
+                ✓ Showing data from {apiData.meta?.entriesCount || 0} entries
+                {apiData.query?.dateKey && ` for ${apiData.query.dateKey}`}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}
@@ -222,7 +354,7 @@ export default function MRFDashboard() {
                 <CheckCircle className="text-emerald-600" size={24} />
               </div>
               <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                +12 Today
+                Live Data
               </span>
             </div>
             <p className="text-slate-600 text-sm font-medium mb-1">Total Collections</p>
@@ -247,12 +379,14 @@ export default function MRFDashboard() {
               <div className="bg-amber-100 p-3 rounded-lg">
                 <AlertCircle className="text-amber-600" size={24} />
               </div>
-              <span className="text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
-                Optimal
+              <span className={`text-sm font-medium px-3 py-1 rounded-full ${
+                ((totalLoad / totalCapacity) * 100) > 70 ? 'text-amber-600 bg-amber-50' : 'text-emerald-600 bg-emerald-50'
+              }`}>
+                {((totalLoad / totalCapacity) * 100) > 70 ? 'High' : 'Optimal'}
               </span>
             </div>
-            <p className="text-slate-600 text-sm font-medium mb-1">Average Utilization</p>
-            <p className="text-4xl font-bold text-slate-800">{((totalLoad / totalCapacity) * 100).toFixed(1)}<span className="text-xl text-slate-500">%</span></p>
+            <p className="text-slate-600 text-sm font-medium mb-1">Current Load</p>
+            <p className="text-4xl font-bold text-slate-800">{totalLoad}<span className="text-xl text-slate-500">kg</span></p>
           </div>
         </div>
 
@@ -291,7 +425,7 @@ export default function MRFDashboard() {
                 <div className="flex justify-between items-center mb-6">
                   <div>
                     <h2 className="text-2xl font-bold text-slate-800">Registered MRF Facilities</h2>
-                    <p className="text-slate-600 text-sm mt-1">Manage and monitor all Material Recovery Facilities</p>
+                    <p className="text-slate-600 text-sm mt-1">Live data from Material Recovery Facilities</p>
                   </div>
                   <button
                     onClick={() => setShowAddMRF(true)}
@@ -301,6 +435,38 @@ export default function MRFDashboard() {
                     Register New MRF
                   </button>
                 </div>
+
+                {/* API Data Summary Cards */}
+                {apiData && apiData.counts && apiData.counts.perPlant && Object.keys(apiData.counts.perPlant).length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    {Object.entries(apiData.counts.perPlant).map(([plantId, data]) => {
+                      const totalWeight = Object.values(data).reduce((sum, val) => sum + val, 0);
+                      const itemTypes = Object.keys(data).length;
+                      return (
+                        <div key={plantId} className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-xl p-4">
+                          <h4 className="font-bold text-slate-800 capitalize mb-2">{plantId}</h4>
+                          <p className="text-2xl font-bold text-emerald-600">{totalWeight.toFixed(1)} kg</p>
+                          <p className="text-xs text-slate-600 mt-1">{itemTypes} waste categories</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Overall Summary */}
+                {apiData && apiData.counts && apiData.counts.overall && Object.keys(apiData.counts.overall).length > 0 && (
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
+                    <h3 className="text-lg font-bold text-slate-800 mb-4">Overall Waste Collection Breakdown</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                      {Object.entries(apiData.counts.overall).map(([wasteName, weight]) => (
+                        <div key={wasteName} className="bg-white rounded-lg p-3 border border-blue-100">
+                          <p className="text-xs text-slate-600 mb-1 truncate" title={wasteName}>{wasteName}</p>
+                          <p className="text-lg font-bold text-blue-600">{weight} kg</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   {mrfs.map((mrf) => {

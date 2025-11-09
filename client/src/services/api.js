@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "https://swach-sanket.onrender.com/"; // set in .env if you have backend
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000"; // set in .env if you have backend
 
 const api = axios.create({
   baseURL: API_BASE,
