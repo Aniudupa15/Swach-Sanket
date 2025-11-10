@@ -11,6 +11,11 @@ import authRoutes from "./routes/auth.routes.js";
 import materialsRoutes from "./routes/materials.routes.js";
 import entriesRoutes from "./routes/entries.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
+<<<<<<< HEAD
+import complianceRoutes from "./routes/compliance.routes.js";
+import transactionsRoutes from "./routes/transactions.routes.js";
+=======
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
 
 
 const app = express();
@@ -46,6 +51,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/materials", materialsRoutes);
 app.use("/api/entries", entriesRoutes);
 app.use("/api/analytics", analyticsRoutes);
+<<<<<<< HEAD
+app.use("/api/compliance", complianceRoutes);
+app.use("/api/transactions", transactionsRoutes);
+=======
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
 
 app.use(errorHandler);
 

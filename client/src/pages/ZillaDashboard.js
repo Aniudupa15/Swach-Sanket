@@ -1,8 +1,16 @@
 import React, { useState, useEffect ,useCallback} from 'react';
 import { Plus, Trash2, MapPin, TrendingUp, AlertCircle, CheckCircle, Mail, Lock, Eye, EyeOff, Copy, Check, RefreshCw,LogOut} from 'lucide-react';
+<<<<<<< HEAD
+import { useI18n } from "../i18n/I18nProvider";
 
 
 export default function MRFDashboard() {
+  const { t } = useI18n();
+=======
+
+
+export default function MRFDashboard() {
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddMRF, setShowAddMRF] = useState(false);
   const [copiedPassword, setCopiedPassword] = useState(null);
@@ -95,8 +103,13 @@ export default function MRFDashboard() {
   setError(null);
 
   try {
+<<<<<<< HEAD
+    const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+    let url = `${API_BASE_URL}api/entries/aggregate-all-plants`;
+=======
     const API_BASE_URL = process.env.REACT_APP_API_BASE || "https://swach-sanket.onrender.com";
     let url = `${API_BASE_URL}/api/entries/aggregate-all-plants`;
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
 
     const params = new URLSearchParams();
     params.append('plants', 'yedapadavu,narikombu,ujire,kedambadi');
@@ -153,8 +166,13 @@ export default function MRFDashboard() {
 
   const handleAddMRF = async () => {
   try {
+<<<<<<< HEAD
+    const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+    console.log("📡 Sending registration to:", `${API_BASE_URL}api/auth/register`);
+=======
     const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000/";
     console.log("📡 Sending registration to:", `${API_BASE_URL}/api/auth/register`);
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
 
     // Build payload for registration
     const registerPayload = {
@@ -278,22 +296,37 @@ export default function MRFDashboard() {
                   <span className="text-3xl">🏛️</span>
                 </div>
                 <div>
+<<<<<<< HEAD
+                  <h1 className="text-3xl font-bold text-slate-800">{t("zilla.title")}</h1>
+                  <p className="text-slate-600">{t("zilla.subtitle")}</p>
+=======
                   <h1 className="text-3xl font-bold text-slate-800">Zilla Panchayat</h1>
                   <p className="text-slate-600">Material Recovery Facility Management</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
+<<<<<<< HEAD
+                <p className="text-sm text-slate-500">{t("zilla.dataRange")}</p>
+=======
                 <p className="text-sm text-slate-500">Data Range</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                 <select 
                   value={selectedDateRange}
                   onChange={(e) => setSelectedDateRange(e.target.value)}
                   className="text-sm font-semibold text-slate-800 border border-slate-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-blue-500"
                 >
+<<<<<<< HEAD
+                  <option value="today">{t("zilla.today")}</option>
+                  <option value="week">{t("zilla.week")}</option>
+                  <option value="month">{t("zilla.month")}</option>
+=======
                   <option value="today">Today</option>
                   <option value="week">Last 7 Days</option>
                   <option value="month">Last 30 Days</option>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                 </select>
               </div>
               <button
@@ -311,7 +344,11 @@ export default function MRFDashboard() {
               className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition flex items-center gap-2"
             >
               <LogOut size={18} />
+<<<<<<< HEAD
+              <span>{t("actions.logout")}</span>
+=======
               <span>Logout</span>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
             </button>
             </div>
           </div>
@@ -341,10 +378,17 @@ export default function MRFDashboard() {
                 <MapPin className="text-blue-600" size={24} />
               </div>
               <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+<<<<<<< HEAD
+                {operationalMRFs}/{mrfs.length} {t("zilla.active")}
+              </span>
+            </div>
+            <p className="text-slate-600 text-sm font-medium mb-1">{t("zilla.totalMRF")}</p>
+=======
                 {operationalMRFs}/{mrfs.length} Active
               </span>
             </div>
             <p className="text-slate-600 text-sm font-medium mb-1">Total MRF Facilities</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
             <p className="text-4xl font-bold text-slate-800">{mrfs.length}</p>
           </div>
 
@@ -357,7 +401,11 @@ export default function MRFDashboard() {
                 Live Data
               </span>
             </div>
+<<<<<<< HEAD
+            <p className="text-slate-600 text-sm font-medium mb-1">{t("zilla.totalCollections")}</p>
+=======
             <p className="text-slate-600 text-sm font-medium mb-1">Total Collections</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
             <p className="text-4xl font-bold text-slate-800">{totalCollections}</p>
           </div>
 
@@ -367,10 +415,17 @@ export default function MRFDashboard() {
                 <TrendingUp className="text-purple-600" size={24} />
               </div>
               <span className="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
+<<<<<<< HEAD
+                {t("zilla.capacity")}
+              </span>
+            </div>
+            <p className="text-slate-600 text-sm font-medium mb-1">{t("zilla.totalCapacity")}</p>
+=======
                 Capacity
               </span>
             </div>
             <p className="text-slate-600 text-sm font-medium mb-1">Total Capacity</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
             <p className="text-4xl font-bold text-slate-800">{totalCapacity}<span className="text-xl text-slate-500">kg</span></p>
           </div>
 
@@ -379,6 +434,15 @@ export default function MRFDashboard() {
               <div className="bg-amber-100 p-3 rounded-lg">
                 <AlertCircle className="text-amber-600" size={24} />
               </div>
+<<<<<<< HEAD
+              <span className={`text-sm font-medium px-3 py-1 rounded-full ${ 
+                ((totalLoad / totalCapacity) * 100) > 70 ? 'text-amber-600 bg-amber-50' : 'text-emerald-600 bg-emerald-50'
+              }`}>
+                {((totalLoad / totalCapacity) * 100) > 70 ? t("zilla.high") : t("zilla.optimal")}
+              </span>
+            </div>
+            <p className="text-slate-600 text-sm font-medium mb-1">{t("zilla.currentLoad")}</p>
+=======
               <span className={`text-sm font-medium px-3 py-1 rounded-full ${
                 ((totalLoad / totalCapacity) * 100) > 70 ? 'text-amber-600 bg-amber-50' : 'text-emerald-600 bg-emerald-50'
               }`}>
@@ -386,6 +450,7 @@ export default function MRFDashboard() {
               </span>
             </div>
             <p className="text-slate-600 text-sm font-medium mb-1">Current Load</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
             <p className="text-4xl font-bold text-slate-800">{totalLoad}<span className="text-xl text-slate-500">kg</span></p>
           </div>
         </div>
@@ -403,7 +468,11 @@ export default function MRFDashboard() {
                     : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >
+<<<<<<< HEAD
+                {t("zilla.tabFacilities")}
+=======
                 MRF Facilities
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
               </button>
               <button
                 onClick={() => setActiveTab('collections')}
@@ -413,7 +482,11 @@ export default function MRFDashboard() {
                     : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >
+<<<<<<< HEAD
+                {t("zilla.tabCollections")}
+=======
                 Collection Records
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
               </button>
             </div>
           </div>
@@ -424,15 +497,24 @@ export default function MRFDashboard() {
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <div>
+<<<<<<< HEAD
+                    <h2 className="text-2xl font-bold text-slate-800">{t("zilla.registeredTitle")}</h2>
+                    <p className="text-slate-600 text-sm mt-1">{t("zilla.registeredSubtitle")}</p>
+=======
                     <h2 className="text-2xl font-bold text-slate-800">Registered MRF Facilities</h2>
                     <p className="text-slate-600 text-sm mt-1">Live data from Material Recovery Facilities</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                   </div>
                   <button
                     onClick={() => setShowAddMRF(true)}
                     className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all shadow-sm hover:shadow-md font-semibold"
                   >
                     <Plus size={20} />
+<<<<<<< HEAD
+                    {t("zilla.registerMRF")}
+=======
                     Register New MRF
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                   </button>
                 </div>
 
@@ -456,7 +538,11 @@ export default function MRFDashboard() {
                 {/* Overall Summary */}
                 {apiData && apiData.counts && apiData.counts.overall && Object.keys(apiData.counts.overall).length > 0 && (
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
+<<<<<<< HEAD
+                    <h3 className="text-lg font-bold text-slate-800 mb-4">{t("zilla.overallBreakdown")}</h3>
+=======
                     <h3 className="text-lg font-bold text-slate-800 mb-4">Overall Waste Collection Breakdown</h3>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                       {Object.entries(apiData.counts.overall).map(([wasteName, weight]) => (
                         <div key={wasteName} className="bg-white rounded-lg p-3 border border-blue-100">
@@ -504,7 +590,11 @@ export default function MRFDashboard() {
                           <div className="md:col-span-2">
                             <div className="mb-2">
                               <div className="flex justify-between text-sm mb-2">
+<<<<<<< HEAD
+                                <span className="font-medium text-slate-700">{t("zilla.capacityUtil")}</span>
+=======
                                 <span className="font-medium text-slate-700">Capacity Utilization</span>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                                 <span className="font-bold text-slate-800">{loadPercentage}%</span>
                               </div>
                               <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
@@ -521,11 +611,19 @@ export default function MRFDashboard() {
 
                           <div className="flex gap-4 md:justify-end items-center">
                             <div className="text-center">
+<<<<<<< HEAD
+                              <p className="text-xs text-slate-600 mb-1">{t("zilla.collections")}</p>
+                              <p className="text-2xl font-bold text-slate-800">{mrf.collections}</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-xs text-slate-600 mb-1">{t("zilla.lastActive")}</p>
+=======
                               <p className="text-xs text-slate-600 mb-1">Collections</p>
                               <p className="text-2xl font-bold text-slate-800">{mrf.collections}</p>
                             </div>
                             <div className="text-center">
                               <p className="text-xs text-slate-600 mb-1">Last Active</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                               <p className="text-sm font-semibold text-slate-800">{mrf.lastCollection}</p>
                             </div>
                           </div>
@@ -535,7 +633,11 @@ export default function MRFDashboard() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <Lock size={14} className="text-slate-400" />
+<<<<<<< HEAD
+                              <span className="text-xs text-slate-600">{t("zilla.loginCreds")}</span>
+=======
                               <span className="text-xs text-slate-600">Login Credentials:</span>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                               <span className="text-sm font-mono bg-white px-3 py-1 rounded border border-slate-200">
                                 {showPassword[mrf.id] ? mrf.password : '••••••••••'}
                               </span>
@@ -552,7 +654,11 @@ export default function MRFDashboard() {
                                 {copiedPassword === mrf.id ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
                               </button>
                             </div>
+<<<<<<< HEAD
+                            <span className="text-xs text-slate-500">{t("zilla.registeredOn")}: {mrf.createdDate}</span>
+=======
                             <span className="text-xs text-slate-500">Registered: {mrf.createdDate}</span>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                           </div>
                         </div>
                       </div>
@@ -565,19 +671,33 @@ export default function MRFDashboard() {
             {activeTab === 'collections' && (
               <div>
                 <div className="mb-6">
+<<<<<<< HEAD
+                  <h2 className="text-2xl font-bold text-slate-800">{t("zilla.collectionLogTitle")}</h2>
+                  <p className="text-slate-600 text-sm mt-1">{t("zilla.collectionLogSubtitle")}</p>
+=======
                   <h2 className="text-2xl font-bold text-slate-800">Collection Activity Log</h2>
                   <p className="text-slate-600 text-sm mt-1">Track all waste collection transactions across facilities</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                 </div>
                 <div className="overflow-x-auto rounded-xl border border-slate-200">
                   <table className="w-full">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-200">
+<<<<<<< HEAD
+                        <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">{t("zilla.colId")}</th>
+                        <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">{t("zilla.colFacility")}</th>
+                        <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">{t("zilla.colCategory")}</th>
+                        <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">{t("zilla.colWeight")}</th>
+                        <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">{t("zilla.colDate")}</th>
+                        <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">{t("zilla.colTime")}</th>
+=======
                         <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">Collection ID</th>
                         <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">MRF Facility</th>
                         <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">Waste Category</th>
                         <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">Weight</th>
                         <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">Date</th>
                         <th className="text-left py-4 px-6 font-semibold text-slate-700 text-sm">Time</th>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                       </tr>
                     </thead>
                     <tbody>
@@ -615,15 +735,24 @@ export default function MRFDashboard() {
                     <Plus className="text-white" size={24} />
                   </div>
                   <div>
+<<<<<<< HEAD
+                    <h2 className="text-2xl font-bold text-slate-800">{t("zilla.modalRegisterTitle")}</h2>
+                    <p className="text-slate-600 text-sm">{t("zilla.modalRegisterSubtitle")}</p>
+=======
                     <h2 className="text-2xl font-bold text-slate-800">Register New MRF</h2>
                     <p className="text-slate-600 text-sm">Fill in the facility details</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                   </div>
                 </div>
 
                 <div className="space-y-5">
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
+<<<<<<< HEAD
+                      {t("zilla.facilityName")} *
+=======
                       Facility Name *
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                     </label>
                     <input
                       type="text"
@@ -636,7 +765,11 @@ export default function MRFDashboard() {
 
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
+<<<<<<< HEAD
+                      {t("zilla.officialEmail")} *
+=======
                       Official Email Address *
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                     </label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3.5 text-slate-400" size={18} />
@@ -652,7 +785,11 @@ export default function MRFDashboard() {
 
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
+<<<<<<< HEAD
+                      {t("zilla.location")} *
+=======
                       Location *
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                     </label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-3.5 text-slate-400" size={18} />
@@ -668,7 +805,11 @@ export default function MRFDashboard() {
 
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
+<<<<<<< HEAD
+                      {t("zilla.storageCapacity")} *
+=======
                       Storage Capacity (kg) *
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                     </label>
                     <input
                       type="number"
@@ -685,14 +826,22 @@ export default function MRFDashboard() {
                     onClick={handleCloseModal}
                     className="flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-semibold"
                   >
+<<<<<<< HEAD
+                    {t("zilla.cancel")}
+=======
                     Cancel
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                   </button>
                   <button
                     onClick={handleNextStep}
                     disabled={!newMRF.name || !newMRF.email || !newMRF.location || !newMRF.capacity}
                     className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   >
+<<<<<<< HEAD
+                    {t("zilla.generateCreds")}
+=======
                     Generate Credentials
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                   </button>
                 </div>
               </div>
@@ -702,13 +851,29 @@ export default function MRFDashboard() {
                   <div className="inline-block bg-gradient-to-br from-green-600 to-emerald-600 p-4 rounded-full mb-4">
                     <CheckCircle className="text-white" size={32} />
                   </div>
+<<<<<<< HEAD
+                  <h2 className="text-2xl font-bold text-slate-800 mb-2">{t("zilla.credsGenerated")}</h2>
+                  <p className="text-slate-600">{t("zilla.credsSave")}</p>
+=======
                   <h2 className="text-2xl font-bold text-slate-800 mb-2">Login Credentials Generated!</h2>
                   <p className="text-slate-600">Save these credentials securely</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                 </div>
 
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200 mb-6">
                   <div className="space-y-4">
                     <div>
+<<<<<<< HEAD
+                      <p className="text-xs font-semibold text-slate-600 mb-2">{t("zilla.facilityNameUpper")}</p>
+                      <p className="text-lg font-bold text-slate-800">{newMRF.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-600 mb-2">{t("zilla.emailUpper")}</p>
+                      <p className="text-sm font-mono text-slate-800 bg-white px-3 py-2 rounded-lg border border-slate-200">{newMRF.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-600 mb-2">{t("zilla.autoPassUpper")}</p>
+=======
                       <p className="text-xs font-semibold text-slate-600 mb-2">FACILITY NAME</p>
                       <p className="text-lg font-bold text-slate-800">{newMRF.name}</p>
                     </div>
@@ -718,6 +883,7 @@ export default function MRFDashboard() {
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-slate-600 mb-2">AUTO-GENERATED PASSWORD</p>
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                       <div className="flex items-center gap-2">
                         <p className="flex-1 text-sm font-mono font-bold text-blue-600 bg-white px-3 py-2 rounded-lg border-2 border-blue-300">{generatedPassword}</p>
                         <button
@@ -735,7 +901,11 @@ export default function MRFDashboard() {
                   <div className="flex gap-3">
                     <AlertCircle className="text-amber-600 flex-shrink-0" size={20} />
                     <p className="text-sm text-amber-800">
+<<<<<<< HEAD
+                      <strong>{t("zilla.important")}</strong> {t("zilla.importantMsg")}
+=======
                       <strong>Important:</strong> Please save these credentials securely. The password cannot be recovered later. Share with the facility administrator only.
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                     </p>
                   </div>
                 </div>
@@ -745,13 +915,21 @@ export default function MRFDashboard() {
                     onClick={handleCloseModal}
                     className="flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-semibold"
                   >
+<<<<<<< HEAD
+                    {t("zilla.cancel")}
+=======
                     Cancel
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                   </button>
                   <button
                     onClick={handleAddMRF}
                     className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all font-semibold"
                   >
+<<<<<<< HEAD
+                    {t("zilla.completeRegistration")}
+=======
                     Complete Registration
+>>>>>>> d078685db948fbf793c5b85b249f81e55f7e2658
                   </button>
                 </div>
               </div>
