@@ -15,72 +15,11 @@ export default function MRFDashboard() {
   const [selectedDateRange, setSelectedDateRange] = useState('today');
   
   const [mrfs, setMrfs] = useState([
-    {
-      id: 1,
-      name: 'Yedapadavu MRF',
-      plantId: 'yedapadavu',
-      email: 'yedapadavu.mrf@zillapanchayat.gov',
-      password: 'MRF#2024$Yed',
-      location: 'Yedapadavu, Karnataka',
-      capacity: 500,
-      currentLoad: 0,
-      status: 'operational',
-      collections: 0,
-      lastCollection: 'Loading...',
-      createdDate: '2024-01-15'
-    },
-    {
-      id: 2,
-      name: 'Narikombu MRF',
-      plantId: 'narikombu',
-      email: 'narikombu.mrf@zillapanchayat.gov',
-      password: 'MRF#2024$Nar',
-      location: 'Narikombu, Karnataka',
-      capacity: 400,
-      currentLoad: 0,
-      status: 'operational',
-      collections: 0,
-      lastCollection: 'Loading...',
-      createdDate: '2024-02-20'
-    },
-    {
-      id: 3,
-      name: 'Ujire MRF',
-      plantId: 'ujire',
-      email: 'ujire.mrf@zillapanchayat.gov',
-      password: 'MRF#2024$Uji',
-      location: 'Ujire, Karnataka',
-      capacity: 350,
-      currentLoad: 0,
-      status: 'operational',
-      collections: 0,
-      lastCollection: 'Loading...',
-      createdDate: '2024-03-10'
-    },
-    {
-      id: 4,
-      name: 'Kedambadi MRF',
-      plantId: 'kedambadi',
-      email: 'kedambadi.mrf@zillapanchayat.gov',
-      password: 'MRF#2024$Ked',
-      location: 'Kedambadi, Karnataka',
-      capacity: 450,
-      currentLoad: 0,
-      status: 'operational',
-      collections: 0,
-      lastCollection: 'Loading...',
-      createdDate: '2024-04-05'
-    }
+    
   ]);
 
   const [collections] = useState([
-    { id: 1, mrfName: 'Yedapadavu MRF', type: 'Plastic', weight: 45, date: '2025-11-08', time: '09:30' },
-    { id: 2, mrfName: 'Narikombu MRF', type: 'Paper', weight: 78, date: '2025-11-08', time: '10:15' },
-    { id: 3, mrfName: 'Yedapadavu MRF', type: 'Metal', weight: 32, date: '2025-11-08', time: '11:00' },
-    { id: 4, mrfName: 'Kedambadi MRF', type: 'Glass', weight: 56, date: '2025-11-08', time: '08:45' },
-    { id: 5, mrfName: 'Ujire MRF', type: 'Plastic', weight: 41, date: '2025-11-07', time: '14:20' },
-    { id: 6, mrfName: 'Narikombu MRF', type: 'Organic', weight: 92, date: '2025-11-07', time: '16:30' }
-  ]);
+        ]);
 
   const [newMRF, setNewMRF] = useState({
     name: '',
