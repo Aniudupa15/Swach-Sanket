@@ -192,3 +192,34 @@ export const getCurrentUser = async (req, res) => {
     }
   });
 };
+
+// Get users by role
+export const getUsersByRole = async (req, res, next) => {
+  try {
+    const { role } = req.params;
+    const validRoles = ['zilla_panchayat', 'mrf_operator', 'mrf_driver'];
+    
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ 
+        message: "Invalid role. Must be: zilla_panchayat, mrf_operator, or mrf_driver" 
+      });
+    }
+
+    const users = await User.find({ role }).select('-password').lean();
+    
+    res.json({ 
+      role,
+      count: users.length,
+      users: users.map(user => ({
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt
+      }))
+    });
+  } catch (error) {
+    next(error);
+  }
+};
