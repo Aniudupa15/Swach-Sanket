@@ -41,7 +41,7 @@ export default function MRFDashboard() {
 
   try {
     const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
-    let url = `${API_BASE_URL}/api/entries/aggregate`;
+    let url = `${API_BASE_URL}api/entries/aggregate`;
 
     const params = new URLSearchParams();
     params.append('plants', 'yedapadavu,narikombu,ujire,kedambadi');
@@ -161,7 +161,7 @@ export default function MRFDashboard() {
     // This will be called after apiData is fetched, so we can use it
     try {
       const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
-      const response = await fetch(`${API_BASE_URL}/api/auth/users/role/mrf_operator`, {
+      const response = await fetch(`${API_BASE_URL}api/auth/users/role/mrf_operator`, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("auth_token") || ""}`,
@@ -183,7 +183,7 @@ export default function MRFDashboard() {
       const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
       
       // Build date range for history
-      let historyUrl = `${API_BASE_URL}/api/entries/history?limit=200`;
+      let historyUrl = `${API_BASE_URL}api/entries/history?limit=200`;
       if (selectedDateRange === 'week') {
         const today = new Date();
         const weekAgo = new Date(today);
@@ -279,7 +279,7 @@ export default function MRFDashboard() {
     try {
       const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
       // Fetch all transactions - transactions are overall, not filtered by date
-      let url = `${API_BASE_URL}/api/transactions/all?limit=500`;
+      let url = `${API_BASE_URL}api/transactions/all?limit=500`;
       
       // Note: Transactions are fetched overall, not filtered by date range
       // If you want to filter by date in the future, you can add query params here
@@ -378,7 +378,7 @@ export default function MRFDashboard() {
   const handleAddMRF = async () => {
   try {
     const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
-    console.log("📡 Sending registration to:", `${API_BASE_URL}/api/auth/register`);
+    console.log("📡 Sending registration to:", `${API_BASE_URL}api/auth/register`);
 
     // Validate email contains plantId or extract from location
     let plantId = getPlantIdFromEmail(newMRF.email);
@@ -402,7 +402,7 @@ export default function MRFDashboard() {
     };
 
     // 1️⃣ Send registration request
-    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+    const response = await fetch(`${API_BASE_URL}api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
