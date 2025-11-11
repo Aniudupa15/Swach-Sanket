@@ -3,7 +3,8 @@ import {
   login, 
   register, 
   getAllUsers, 
-  seedUsers 
+  seedUsers,
+  getUsersByRole
 } from "../controllers/auth.memory.controller.js";
 import { requireAuthMemory } from "../middleware/auth.memory.js";
 
@@ -14,6 +15,7 @@ router.post("/login", login);
 
 // Debug routes (remove in production)
 router.get("/users", getAllUsers);
+router.get("/users/role/:role", requireAuthMemory, getUsersByRole);
 router.post("/seed", seedUsers);
 
 // Protected route example

@@ -13,6 +13,8 @@ import entriesRoutes from "./routes/entries.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
 import complianceRoutes from "./routes/compliance.routes.js";
 import transactionsRoutes from "./routes/transactions.routes.js";
+import { getAllTransactions } from "./controllers/transactions.controller.js";
+import { requireAuth } from "./middleware/auth.js";
 
 
 const app = express();
@@ -50,6 +52,18 @@ app.use("/api/entries", entriesRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/compliance", complianceRoutes);
 app.use("/api/transactions", transactionsRoutes);
+
+// TEMPORARY: Direct route test to verify routing works
+// Remove this after confirming the router route works
+app.get("/api/transactions/all-test", requireAuth, (req, res, next) => {
+  console.log("[server.js] Direct route /api/transactions/all-test hit!");
+  getAllTransactions(req, res, next);
+});
+
+// Debug: Log route registration
+console.log("✅ Transactions routes registered at /api/transactions");
+console.log("   Available routes: GET /, GET /history, GET /all, POST /, DELETE /:id");
+console.log("   Test route: GET /api/transactions/all-test");
 
 app.use(errorHandler);
 

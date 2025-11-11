@@ -25,7 +25,7 @@ const entrySchema = new mongoose.Schema(
     plantId: {
       type: String,
       enum: ["yedapadavu", "narikombu", "ujire", "kedambadi"],
-      required: true,
+      required: false, // Make optional to handle existing entries without plantId
       index: true
     },
     dateKey: {
@@ -43,7 +43,8 @@ const entrySchema = new mongoose.Schema(
 );
 
 // Ensure one entry per plant per date
-entrySchema.index({ plantId: 1, dateKey: 1 }, { unique: true });
+// Sparse index allows null values without causing duplicate key errors
+entrySchema.index({ plantId: 1, dateKey: 1 }, { unique: true, sparse: true });
 
 // (Optional) keep a user+date index for backward compatibility / quick user lookups
 entrySchema.index({ user: 1, dateKey: 1 }, { unique: false });

@@ -82,6 +82,79 @@ export const getTransactionsHistory = async (req, res, next) => {
 };
 
 /**
+ * GET /api/transactions/all?limit=100[&dateKey=YYYY-MM-DD|&from=YYYY-MM-DD&to=YYYY-MM-DD]
+ * Get all transactions (for zilla_panchayat role only)
+ * 
+ * By default, fetches ALL transactions regardless of date.
+ * Optional date filters can be applied via query params:
+ * - dateKey: single date filter
+ * - from & to: date range filter
+ */
+export const getAllTransactions = async (req, res, next) => {
+  try {
+    console.log(`[getAllTransactions] Called - User role: ${req.user?.role}, Query:`, req.query);
+    // Only allow zilla_panchayat role
+    if (req.user.role !== 'zilla_panchayat') {
+      return res.status(403).json({ message: "Access denied. Zilla Panchayat role required." });
+    }
+
+    const limit = Math.min(Number(req.query.limit) || 100, 500);
+    const { from, to, dateKey } = req.query;
+    
+    console.log(`[getAllTransactions] Query params - from: ${from}, to: ${to}, dateKey: ${dateKey}, limit: ${limit}`);
+    
+    // By default, fetch ALL transactions (no date filter)
+    // Only apply date filter if explicitly requested
+    let query = {};
+    if (dateKey) {
+      query.date = dateKey;
+      console.log(`[getAllTransactions] Using dateKey filter: ${dateKey}`);
+    } else if (from && to) {
+      query.date = { $gte: from, $lte: to };
+      console.log(`[getAllTransactions] Using date range filter: ${from} to ${to}`);
+    } else {
+      console.log(`[getAllTransactions] No date filter - fetching ALL transactions (overall)`);
+    }
+
+    console.log(`[getAllTransactions] MongoDB query:`, JSON.stringify(query));
+    
+    const transactions = await Transaction.find(query)
+      .populate('user', 'name email role')
+      .sort({ date: -1, createdAt: -1 })
+      .limit(limit)
+      .lean();
+
+    console.log(`[getAllTransactions] Found ${transactions.length} transactions`);
+    if (transactions.length > 0) {
+      console.log(`[getAllTransactions] Sample transaction:`, {
+        _id: transactions[0]._id,
+        date: transactions[0].date,
+        itemName: transactions[0].itemName,
+        cost: transactions[0].cost,
+        user: transactions[0].user
+      });
+    }
+
+    // Calculate totals
+    const totalRevenue = transactions.reduce((sum, t) => sum + (t.cost || 0), 0);
+    const totalQuantity = transactions.reduce((sum, t) => sum + (t.quantity || 0), 0);
+
+    console.log(`[getAllTransactions] Summary - Total: ${transactions.length}, Revenue: ${totalRevenue}, Quantity: ${totalQuantity}`);
+
+    res.json({ 
+      transactions,
+      summary: {
+        total: transactions.length,
+        totalRevenue,
+        totalQuantity
+      }
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+/**
  * DELETE /api/transactions/:id
  * Delete a transaction
  */

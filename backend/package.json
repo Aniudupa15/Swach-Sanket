@@ -9,7 +9,8 @@
     "start": "node src/server.js",
     "start:memory": "node src/server.memory.js",
     "seed:materials": "node src/seed/materials.seed.js",
-    "seed:users": "node src/seed/users.seed.js"
+    "seed:users": "node src/seed/users.seed.js",
+    "fix:index": "node src/scripts/fix-entry-index.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
