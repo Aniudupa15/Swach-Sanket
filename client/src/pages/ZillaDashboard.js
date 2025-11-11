@@ -14,14 +14,16 @@ export default function MRFDashboard() {
   const [apiData, setApiData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedDateRange, setSelectedDateRange] = useState('today');
-  
-  const [mrfs, setMrfs] = useState([
-    
-  ]);
-
-  const [collections] = useState([
-        ]);
+  const [selectedDateRange, setSelectedDateRange] = useState('month'); // Default to month to show more data
+  const [collections, setCollections] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [transactionsSummary, setTransactionsSummary] = useState({ total: 0, totalRevenue: 0, totalQuantity: 0 });
+  const [overallStats, setOverallStats] = useState({
+    totalWaste: 0,
+    totalRevenue: 0,
+    totalTransactions: 0,
+    activeOperators: 0
+  });
 
   const [newMRF, setNewMRF] = useState({
     name: '',
@@ -174,7 +176,7 @@ export default function MRFDashboard() {
     } catch (err) {
       console.error("❌ Error fetching MRF operators:", err);
     }
-  }, [apiData]); // Re-fetch when apiData changes to update load/collections
+  }, []); // Re-fetch when apiData changes to update load/collections
 
   const fetchCollections = useCallback(async () => {
     try {
