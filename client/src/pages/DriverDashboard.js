@@ -18,9 +18,18 @@ const ROUTES = [
     area: "Yelahanka, Hesaraghatta, Jala Hobli",
     color: "#3b82f6",
     panchayats: [
-      { id: 101, name: "Yelahanka GP", address: "Yelahanka", lat: 13.1007, lng: 77.5963 },
-      { id: 102, name: "Kogilu GP", address: "Kogilu", lat: 13.1249, lng: 77.5819 },
-      { id: 103, name: "Vidyaranyapura GP", address: "Vidyaranyapura", lat: 13.0794, lng: 77.554 },
+      { "id": 301, "name": "Ganjimutt GP", "address": "Ganjimutt / Suralpady area, Mangaluru Taluk, Dakshina Kannada, Karnataka", "lat": 12.9693, "lng": 74.9380 },
+      { "id": 302, "name": "Badagayedapadavu GP", "address": "Badagayedapadavu, Mangaluru Taluk, Dakshina Kannada, Karnataka", "lat": 13.005966, "lng": 74.973719 },
+      { "id": 303, "name": "Gurupura (Mooluru) GP", "address": "Gurupura / Mooluru Gram Panchayat area, Mangaluru Taluk, Dakshina Kannada, Karnataka", "lat": 12.938828, "lng": 74.931107 },
+      { "id": 304, "name": "Aikala GP", "address": "Aikala village, Mangaluru Taluk, Dakshina Kannada, Karnataka", "lat": 13.06323, "lng": 74.87995 },
+      { "id": 305, "name": "Bellairu / Padupanambur (covers Bellairu)", "address": "Bellairu village (Padupanambur GP area), Mangaluru Taluk, Dakshina Kannada, Karnataka", "lat": 13.06005, "lng": 74.80367 },
+      { "id": 306, "name": "Adyar GP (rural Adyar area)", "address": "Adyar locality (Mangaluru taluk outskirts), Dakshina Kannada, Karnataka", "lat": 12.86913, "lng": 74.92234 },
+      { "id": 307, "name": "Kaikamba / Kandavara (served by Ganjimutt/Kandavara GPs)", "address": "Kaikamba / Kandavara area, Mangaluru Taluk, Dakshina Kannada, Karnataka", "lat": 12.96070, "lng": 74.93320 },
+      { "id": 308, "name": "Yedapadav / Badagayedapadav GP", "address": "Yedapadav (Badagayedapadav), Mangaluru Taluk, Dakshina Kannada, Karnataka", "lat": 13.00843, "lng": 74.97134 },
+      { "id": 309, "name": "Harekala / Harekala-Narayanpur GP area", "address": "Harekala area, Mangaluru Taluk, Dakshina Kannada, Karnataka", "lat": 13.0490, "lng": 74.8190 },
+      { "id": 310, "name": "Badagaulipady / Ganjimata GP area", "address": "Badagaulipady (Ganjimata area), Mangaluru Taluk, Dakshina Kannada, Karnataka", "lat": 13.02, "lng": 74.89 },
+      { "id": 311, "name": "Kinnigoli / nearby panchayat (example: Kinnigoli GP area)", "address": "Kinnigoli area (near Mangalore–Moodabidri road), Dakshina Kannada, Karnataka", "lat": 13.0315, "lng": 74.9720 },
+      { "id": 312, "name": "Mulki-block GP (example: Mulki / nearby Gram Panchayat)", "address": "Mulki / nearby Gram Panchayat area, Dakshina Kannada, Karnataka", "lat": 13.1120, "lng": 74.7720 }
     ],
   },
 ];
