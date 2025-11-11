@@ -22,7 +22,7 @@ function App() {
           {/* Global language switcher visible on all pages */}
           <LanguageSwitcher />
           <Routes>
-            <Route path="/" element={<Navigate to="/" replace />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<Login />} />
 
             <Route
