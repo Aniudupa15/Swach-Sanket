@@ -304,7 +304,7 @@ export default function LoginPage() {
   const quickLogin = (role) => {
     const credentials = {
       zilla_panchayat: { email: "admin@example.com", password: "TestPass123" },
-      mrf_operator: { email: "anirudha@example.com", password: "TestPass123" },
+      mrf_operator: { email: "yedapadavu.mrf@zillapanchayat.gov", password: "TestPass123" },
       mrf_driver: { email: "aniudupa15@gmail.com", password: "TestPass123" },
     };
 
