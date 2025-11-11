@@ -40,7 +40,7 @@ export default function MRFDashboard() {
   setError(null);
 
   try {
-    const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+    const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000/";
     let url = `${API_BASE_URL}api/entries/aggregate`;
 
     const params = new URLSearchParams();
@@ -160,7 +160,7 @@ export default function MRFDashboard() {
   const fetchMRFOperators = useCallback(async () => {
     // This will be called after apiData is fetched, so we can use it
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+      const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000/";
       const response = await fetch(`${API_BASE_URL}api/auth/users/role/mrf_operator`, {
         headers: {
           "Content-Type": "application/json",
@@ -180,7 +180,7 @@ export default function MRFDashboard() {
 
   const fetchCollections = useCallback(async () => {
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+      const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000/";
       
       // Build date range for history
       let historyUrl = `${API_BASE_URL}api/entries/history?limit=200`;
@@ -277,7 +277,7 @@ export default function MRFDashboard() {
 
   const fetchTransactions = useCallback(async () => {
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+      const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000/";
       // Fetch all transactions - transactions are overall, not filtered by date
       let url = `${API_BASE_URL}api/transactions/all?limit=500`;
       
@@ -377,7 +377,7 @@ export default function MRFDashboard() {
 
   const handleAddMRF = async () => {
   try {
-    const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+    const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000/";
     console.log("📡 Sending registration to:", `${API_BASE_URL}api/auth/register`);
 
     // Validate email contains plantId or extract from location
