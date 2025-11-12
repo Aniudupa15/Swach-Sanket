@@ -43,7 +43,6 @@
 
 
 import express from "express";
-import fetch from "node-fetch"; // install with: npm install node-fetch
 import User from "../models/secondary/User.js";
 import WeightLedger from "../models/secondary/WeightLedger.js";
 
