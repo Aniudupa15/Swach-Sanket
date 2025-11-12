@@ -457,7 +457,9 @@ export default function DriverDashboard() {
     const fetchCapacityData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/api/panchayat-weightledgers/summary');
+        const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/";
+const response = await fetch(`${API_BASE}api/panchayat-weightledgers/summary`);
+
         if (!response.ok) throw new Error('Failed to fetch capacity data');
         const result = await response.json();
         
