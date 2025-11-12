@@ -30,6 +30,15 @@ import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
+    panchayat: {
+  type: String,
+  required: true
+},
+dryWasteCapacity: {
+  type: Number,
+  required: true,
+  default: 0
+},
     email: { type: String, unique: true, required: true, lowercase: true, index: true },
     password: { type: String, required: true },
     name: { type: String, required: true },
